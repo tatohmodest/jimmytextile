@@ -28,6 +28,22 @@ npm run db:seed
 npm run dev
 ```
 
+## Vercel
+
+This is a Next.js app. In Vercel → Project Settings → General, Framework Preset must be **Next.js** (not Other). `vercel.json` now forces that.
+
+Add these environment variables for Production (and Preview):
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+- `NEXT_PUBLIC_SITE_URL` (your `https://….vercel.app` or custom domain)
+
+Then redeploy. A 404 with `x-vercel-error: NOT_FOUND` means Vercel never invoked Next.js — almost always the framework preset or a missing routing manifest from the first README-only import.
+
 ### Admin login (after seed)
 
 - URL: `/admin/login`

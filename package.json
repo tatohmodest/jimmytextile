@@ -10,6 +10,9 @@
     "db:setup": "node scripts/setup-db.mjs",
     "db:seed": "node scripts/seed.mjs"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.57.4",
