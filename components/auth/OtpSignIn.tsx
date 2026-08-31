@@ -68,6 +68,8 @@ export function OtpSignIn({
   return (
     <form
       className="mt-8 grid gap-4"
+      method="post"
+      action="/api/auth/otp/request"
       onSubmit={async (event) => {
         event.preventDefault();
         if (step === "email") await requestCode();
@@ -120,7 +122,7 @@ export function OtpSignIn({
       {info ? <p className="text-sm text-moss">{info}</p> : null}
       {error ? <p className="text-sm text-wine">{error}</p> : null}
 
-      <button className="btn-primary" disabled={loading}>
+      <button className="btn-primary" type="submit" disabled={loading}>
         {loading
           ? "Please wait..."
           : step === "email"

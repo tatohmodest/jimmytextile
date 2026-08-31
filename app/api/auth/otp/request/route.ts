@@ -11,13 +11,27 @@ const schema = z.object({
   phone: z.string().max(40).optional().nullable(),
 });
 
+async function readPayload(request: Request) {
+  const contentType = request.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    return request.json().catch(() => null);
+  }
+  const form = await request.formData().catch(() => null);
+  if (!form) return null;
+  return {
+    email: form.get("email"),
+    full_name: form.get("full_name"),
+    phone: form.get("phone"),
+  };
+}
+
 export async function POST(request: Request) {
   const ip = clientIp(request);
   if (!rateLimit(`otp-ip:${ip}`, 8, 10 * 60_000).ok) {
     return NextResponse.json({ error: "Too many sign-in attempts. Please wait a few minutes." }, { status: 429 });
   }
 
-  const parsed = schema.safeParse(await request.json().catch(() => null));
+  const parsed = schema.safeParse(await readPayload(request));
   if (!parsed.success) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   }
