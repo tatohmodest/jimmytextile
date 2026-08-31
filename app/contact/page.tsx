@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = pageMetadata({
-  title: "Contact Jimmy Home Textile in Douala",
+  title: "Contact the Douala house",
   description:
     "Visit and talk — Douala, Cameroon. WhatsApp, phone and email for bedsheets, curtains, towels, wholesale and delivery questions.",
   path: "/contact",

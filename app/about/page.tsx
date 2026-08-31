@@ -10,7 +10,7 @@ import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = pageMetadata({
-  title: "About Jimmy Home Textile | A Cameroonian home textile house",
+  title: "A Cameroonian home textile house",
   description:
     "Jimmy Home Textile is a Douala atelier for bedsheets, curtains, towels and bed covers, delivered across Cameroon. Comfort, elegance and beauty for everyday living.",
   path: "/about",

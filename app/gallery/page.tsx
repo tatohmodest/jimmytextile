@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Atelier films | Jimmy Home Textile gallery",
+  title: "Atelier films",
   description:
     "Short films of linens, rooms and making from Jimmy Home Textile in Douala — the house, in motion.",
   path: "/gallery",
