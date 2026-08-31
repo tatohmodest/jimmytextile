@@ -27,11 +27,11 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid upload result" }, { status: 400 });
   }
-  if ((parsed.data.bytes || 0) > MAX_UPLOAD_BYTES) {
+  if ((parsed.data.bytes || 0) >= MAX_UPLOAD_BYTES) {
     return NextResponse.json({ error: "File must be under 10MB" }, { status: 400 });
   }
   const admin = createSupabaseAdminClient();
-  const row = {
+  const base = {
     url: parsed.data.url,
     public_id: parsed.data.publicId,
     folder: parsed.data.folder || "media",
@@ -41,7 +41,16 @@ export async function POST(request: Request) {
     uploaded_by: staff.id,
     alt_text: parsed.data.altText || "",
   };
-  const { error } = await admin.from("media_library").insert(row);
+  const withMediaMeta = {
+    ...base,
+    resource_type: parsed.data.resourceType || "image",
+    poster_url: parsed.data.posterUrl || null,
+  };
+  let { error } = await admin.from("media_library").insert(withMediaMeta);
+  if (error) {
+    const retry = await admin.from("media_library").insert(base);
+    error = retry.error;
+  }
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

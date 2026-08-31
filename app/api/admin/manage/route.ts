@@ -227,7 +227,13 @@ export async function POST(request: Request) {
     const id = String(fd.get("id") || "");
     let items = Array.isArray(current.items) ? [...current.items] : [];
     if (action === "gallery-delete") {
+      const removed = items.find((item) => String(item.id) === id);
       items = items.filter((item) => String(item.id) !== id);
+      const publicId = removed?.public_id ? String(removed.public_id) : "";
+      if (publicId) {
+        const { destroyAsset } = await import("@/lib/cloudinary");
+        await destroyAsset(publicId, "video").catch(() => undefined);
+      }
     } else {
       items = items.map((item) =>
         String(item.id) === id ? { ...item, published: !item.published } : item

@@ -21,6 +21,7 @@ export function signDirectUpload(input: { folder: string; resourceType: "image" 
     timestamp,
     folder,
     eager,
+    eager_async: "false",
     use_filename: "true",
     unique_filename: "true",
   };

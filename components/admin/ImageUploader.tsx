@@ -56,7 +56,7 @@ export function MediaUploader({
           event.target.value = "";
           if (!file) return;
           setError(null);
-          if (file.size > MAX_UPLOAD_BYTES) {
+          if (file.size >= MAX_UPLOAD_BYTES) {
             setError("File must be under 10MB.");
             return;
           }
@@ -86,6 +86,7 @@ export function MediaUploader({
             body.set("signature", sign.signature);
             body.set("folder", sign.folder);
             body.set("eager", sign.eager);
+            body.set("eager_async", "false");
             body.set("use_filename", "true");
             body.set("unique_filename", "true");
 
@@ -128,7 +129,13 @@ export function MediaUploader({
           Uploading to Cloudinary and compressing for the web. Quality stays high.
         </p>
       ) : (
-        <p className="text-xs text-mute">Images and videos under 10MB. Files are compressed on Cloudinary.</p>
+        <p className="text-xs text-mute">
+          {accept === "video"
+            ? "Videos under 10MB. Cloudinary compresses them and keeps the look sharp."
+            : accept === "image"
+              ? "Images under 10MB. They are compressed on Cloudinary without a visible quality drop."
+              : "Images and videos under 10MB. Files are compressed on Cloudinary."}
+        </p>
       )}
       {error ? <p className="text-sm text-wine">{error}</p> : null}
     </div>

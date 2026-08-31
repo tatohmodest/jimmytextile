@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "Missing file" }, { status: 400 });
   }
-  if (file.size > MAX_UPLOAD_BYTES) {
+  if (file.size >= MAX_UPLOAD_BYTES) {
     return NextResponse.json({ error: "File must be under 10MB" }, { status: 400 });
   }
   if (file.type.startsWith("video/")) {
