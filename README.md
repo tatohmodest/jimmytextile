@@ -41,14 +41,18 @@ Add these environment variables for Production (and Preview):
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
 - `NEXT_PUBLIC_SITE_URL` (your `https://….vercel.app` or custom domain)
+- `SMTP_HOST` `SMTP_PORT` `SMTP_SECURE` `SMTP_USER` `SMTP_PASS`
+- `EMAIL_FROM` / `SMTP_FROM`
+- `OWNER_ADMIN_EMAIL` (`modestwilton@gmail.com`)
+- `PAYUNIT_API_KEY` `PAYUNIT_API_USER` `PAYUNIT_API_PASSWORD` `PAYUNIT_MODE` `PAYUNIT_BASE_URL`
 
 Then redeploy. A 404 with `x-vercel-error: NOT_FOUND` means Vercel never invoked Next.js — almost always the framework preset or a missing routing manifest from the first README-only import.
 
 ### Admin login
 
 - URL: `/admin/login`
-- Owner: Modest Wilton — `littlething237@gmail.com`
-- Register with that email if you do not have an account yet, then sign in
+- Owner: Modest Wilton — `modestwilton@gmail.com`
+- Passwordless: request a one-time code, then confirm from email
 - From **Users & Roles**, grant admin to any other email
 
 ### PayUnit
@@ -59,7 +63,8 @@ Add these **server-only** variables. Never expose them in the browser.
 PAYUNIT_API_KEY=
 PAYUNIT_API_USER=
 PAYUNIT_API_PASSWORD=
-PAYUNIT_MODE=test
+PAYUNIT_MODE=live
+PAYUNIT_BASE_URL=https://app.payunit.net
 ```
 
 Orders are created as `pending_payment`. They become `paid` only after PayUnit webhook/status verification.

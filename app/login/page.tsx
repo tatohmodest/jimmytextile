@@ -17,6 +17,7 @@ export default async function LoginPage({
       <div className="mx-auto max-w-md px-4 pb-20 pt-32">
         <p className="text-[11px] tracking-[0.32em] uppercase text-mute">Welcome back</p>
         <h1 className="font-display mt-2 text-5xl">Log in</h1>
+        <p className="mt-3 text-sm text-mute">No password. We email a one-time confirmation code.</p>
         <AuthForm mode="login" next={next} />
       </div>
     </StoreShell>

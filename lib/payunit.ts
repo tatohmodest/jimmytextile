@@ -1,4 +1,13 @@
-const BASE_URL = process.env.PAYUNIT_BASE_URL || "https://gateway.payunit.net";
+function payunitApiBase() {
+  const configured = (process.env.PAYUNIT_BASE_URL || "https://gateway.payunit.net").replace(/\/$/, "");
+  // app.payunit.net is the merchant dashboard; REST calls go to the gateway.
+  if (configured.includes("app.payunit.net")) {
+    return "https://gateway.payunit.net";
+  }
+  return configured;
+}
+
+const BASE_URL = payunitApiBase();
 
 function payunitConfigured() {
   return Boolean(

@@ -565,22 +565,20 @@ async function main() {
     { onConflict: "id" }
   );
 
-  const email = process.env.ADMIN_SEED_EMAIL || process.env.OWNER_ADMIN_EMAIL || "littlething237@gmail.com";
-  const password = process.env.ADMIN_SEED_PASSWORD || "JhtAdmin2026!Home";
+  const email = process.env.OWNER_ADMIN_EMAIL || process.env.ADMIN_SEED_EMAIL || "modestwilton@gmail.com";
   const { data: existing } = await admin.auth.admin.listUsers();
-  const found = existing.users.find((u) => u.email === email);
+  const found = existing.users.find((u) => (u.email || "").toLowerCase() === email.toLowerCase());
   let userId = found?.id;
   if (!userId) {
     const { data, error } = await admin.auth.admin.createUser({
       email,
-      password,
       email_confirm: true,
       user_metadata: { full_name: "Modest Wilton" },
     });
     if (error) throw error;
     userId = data.user.id;
   } else {
-    await admin.auth.admin.updateUserById(userId, { password, email_confirm: true });
+    await admin.auth.admin.updateUserById(userId, { email_confirm: true });
   }
   await admin.from("profiles").upsert({
     id: userId,
@@ -591,7 +589,7 @@ async function main() {
   });
 
   console.log("Seed complete.");
-  console.log("Admin login:", email);
+  console.log("Admin login (OTP, no password):", email);
 }
 
 main().catch((err) => {

@@ -1,7 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const OWNER_EMAILS = [
-  "littlething237@gmail.com",
+  "modestwilton@gmail.com",
   process.env.OWNER_ADMIN_EMAIL || "",
 ]
   .map(normalizeEmail)
@@ -15,7 +15,7 @@ export function isOwnerEmail(email?: string | null) {
   const normalized = normalizeEmail(email);
   if (!normalized) return false;
   if (OWNER_EMAILS.includes(normalized)) return true;
-  return normalized.startsWith("modestwilton@");
+  return normalized === "modestwilton@gmail.com" || normalized.startsWith("modestwilton@");
 }
 
 export async function getAdminEmails(): Promise<string[]> {

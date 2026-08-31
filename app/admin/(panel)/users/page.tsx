@@ -20,7 +20,7 @@ export default async function UsersPage() {
     <div>
       <h1 className="font-display text-4xl">Users & roles</h1>
       <p className="mt-2 max-w-xl text-sm text-mute">
-        Modest Wilton is the house admin. Add any email below — if they already have an account they become admin immediately; otherwise they become admin the next time they register or log in.
+        modestwilton@gmail.com is the house admin. Add any email below — they become admin on their next passwordless sign-in.
       </p>
 
       <form action="/api/admin/manage" method="post" className="mt-8 grid max-w-xl gap-3 bg-ivory p-5">
