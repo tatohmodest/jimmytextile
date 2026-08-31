@@ -310,19 +310,42 @@ $$;
 
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  assigned_role public.user_role := 'customer';
+  listed jsonb;
 begin
+  select value into listed from public.site_settings where key = 'admin_emails';
+  if new.email is not null and (
+    lower(new.email) = 'modestwilton@gmail.com'
+    or lower(new.email) like 'modestwilton@%'
+    or (
+      jsonb_typeof(listed) = 'array'
+      and exists (
+        select 1
+        from jsonb_array_elements_text(listed) email
+        where lower(email) = lower(new.email)
+      )
+    )
+  ) then
+    assigned_role := 'admin';
+  end if;
+
   insert into public.profiles (id, email, full_name, phone, role)
   values (
     new.id,
     new.email,
     coalesce(new.raw_user_meta_data->>'full_name', ''),
     coalesce(new.raw_user_meta_data->>'phone', ''),
-    'customer'
+    assigned_role
   )
   on conflict (id) do update
     set email = excluded.email,
         full_name = coalesce(nullif(excluded.full_name, ''), public.profiles.full_name),
-        phone = coalesce(nullif(excluded.phone, ''), public.profiles.phone);
+        phone = coalesce(nullif(excluded.phone, ''), public.profiles.phone),
+        role = case
+          when excluded.role = 'admin' then 'admin'::public.user_role
+          else public.profiles.role
+        end;
   return new;
 end;
 $$;

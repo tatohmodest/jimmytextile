@@ -36,11 +36,21 @@ export function discountPercent(price: number, discount?: number | null) {
 
 export function siteUrl() {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-  if (explicit && !explicit.includes("localhost")) return explicit;
+  if (explicit && !explicit.includes("localhost") && !explicit.includes("127.0.0.1")) {
+    return explicit;
+  }
   const vercel =
     process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
   if (vercel) return `https://${vercel.replace(/^https?:\/\//, "").replace(/\/$/, "")}`;
   return (explicit || "http://localhost:3000").replace(/\/$/, "");
+}
+
+export function publicSiteUrl() {
+  const url = siteUrl();
+  if (url.includes("localhost") || url.includes("127.0.0.1")) {
+    return "https://jimmytextile.vercel.app";
+  }
+  return url;
 }
 
 export function whatsappLink(phone: string, message?: string) {

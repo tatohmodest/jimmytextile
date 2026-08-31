@@ -23,18 +23,35 @@ export async function getAdminEmails(): Promise<string[]> {
   return [...new Set([...OWNER_EMAILS, ...fromSettings])];
 }
 
+function parseEmailList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeEmail(String(item))).filter(Boolean);
+  }
+  if (typeof value === "string") {
+    try {
+      return parseEmailList(JSON.parse(value));
+    } catch {
+      return value
+        .split(/[\s,;]+/)
+        .map((item) => normalizeEmail(item))
+        .filter(Boolean);
+    }
+  }
+  if (value && typeof value === "object") {
+    const maybe = value as { emails?: unknown };
+    if (Array.isArray(maybe.emails)) return parseEmailList(maybe.emails);
+  }
+  return [];
+}
+
 async function readStoredAdminEmails(): Promise<string[]> {
   try {
     const admin = createSupabaseAdminClient();
     const { data } = await admin.from("site_settings").select("value").eq("key", "admin_emails").maybeSingle();
-    const value = data?.value;
-    if (Array.isArray(value)) {
-      return value.map((item) => normalizeEmail(String(item))).filter(Boolean);
-    }
+    return parseEmailList(data?.value);
   } catch {
-    // Database may not be ready yet.
+    return [];
   }
-  return [];
 }
 
 export async function isAdminEmail(email?: string | null) {
@@ -45,30 +62,31 @@ export async function isAdminEmail(email?: string | null) {
   return list.includes(normalized);
 }
 
-export async function addAdminEmail(email: string) {
-  const normalized = normalizeEmail(email);
-  if (!normalized || !normalized.includes("@")) {
-    throw new Error("Enter a valid email address");
-  }
+async function writeAdminEmails(emails: string[]) {
   const admin = createSupabaseAdminClient();
-  const current = await getAdminEmails();
-  const next = [...new Set([...current, normalized])];
+  const next = [...new Set([...OWNER_EMAILS, ...emails.map(normalizeEmail).filter(Boolean)])];
   const { error } = await admin.from("site_settings").upsert({
     key: "admin_emails",
     value: next,
     updated_at: new Date().toISOString(),
   });
   if (error) throw error;
+  return next;
+}
 
-  const { data: users } = await admin.auth.admin.listUsers({ perPage: 200 });
-  const user = users.users.find((u) => normalizeEmail(u.email) === normalized);
-  if (user) {
-    await admin.from("profiles").upsert({
-      id: user.id,
-      email: user.email,
-      full_name: (user.user_metadata?.full_name as string) || "",
-      role: "admin",
-    });
+export async function addAdminEmail(email: string) {
+  const normalized = normalizeEmail(email);
+  if (!normalized || !normalized.includes("@")) {
+    throw new Error("Enter a valid email address");
   }
-  return { email: normalized, existingUser: Boolean(user) };
+  const current = await getAdminEmails();
+  await writeAdminEmails([...current, normalized]);
+  return { email: normalized };
+}
+
+export async function removeAdminEmail(email: string) {
+  const normalized = normalizeEmail(email);
+  if (!normalized || isOwnerEmail(normalized)) return;
+  const current = await getAdminEmails();
+  await writeAdminEmails(current.filter((item) => item !== normalized));
 }

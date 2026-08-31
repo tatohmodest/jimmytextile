@@ -7,22 +7,28 @@ export function OtpSignIn({
   mode = "login",
   next,
   defaultEmail = "",
+  initialStep,
   showRegisterFields = false,
   hideAltLink = false,
 }: {
   mode?: "login" | "register";
   next: string;
   defaultEmail?: string;
+  initialStep?: "email" | "code";
   showRegisterFields?: boolean;
   hideAltLink?: boolean;
 }) {
-  const [step, setStep] = useState<"email" | "code">("email");
+  const [step, setStep] = useState<"email" | "code">(initialStep || (defaultEmail ? "code" : "email"));
   const [email, setEmail] = useState(defaultEmail);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(
+    initialStep === "code" || (defaultEmail && initialStep !== "email")
+      ? `Enter the one-time code sent to ${defaultEmail}. Request a new one if it has expired.`
+      : null
+  );
   const [loading, setLoading] = useState(false);
 
   async function requestCode() {

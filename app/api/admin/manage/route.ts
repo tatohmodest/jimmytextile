@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireStaff, requireAdmin } from "@/lib/auth";
+import { isOwnerEmail } from "@/lib/admins";
 import { defaultContent } from "@/lib/content";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/utils";
@@ -169,7 +170,33 @@ export async function POST(request: Request) {
   if (action === "role") {
     const adminUser = await requireAdmin();
     if (!adminUser) return NextResponse.json({ error: "Admin only" }, { status: 403 });
-    await admin.from("profiles").update({ role: String(fd.get("role")) }).eq("id", String(fd.get("id")));
+    const id = String(fd.get("id") || "");
+    const role = String(fd.get("role") || "customer");
+    const { data: target } = await admin.from("profiles").select("email, role").eq("id", id).maybeSingle();
+    const targetEmail = String(target?.email || "");
+    if (isOwnerEmail(targetEmail) && role !== "admin") {
+      const url = new URL("/admin/users", request.url);
+      url.searchParams.set("error", "The owner email cannot be removed from admin.");
+      return NextResponse.redirect(url);
+    }
+    await admin.from("profiles").update({ role }).eq("id", id);
+    if (role === "admin" && targetEmail && target?.role !== "admin") {
+      try {
+        const invited = await (await import("@/lib/admin-invite")).inviteAdmin(targetEmail);
+        const url = new URL("/admin/users", request.url);
+        url.searchParams.set("invited", invited.email);
+        if (invited.mailError) url.searchParams.set("mailError", invited.mailError);
+        return NextResponse.redirect(url);
+      } catch (err) {
+        const url = new URL("/admin/users", request.url);
+        url.searchParams.set("invited", targetEmail);
+        url.searchParams.set("mailError", err instanceof Error ? err.message : "Could not finish the admin invite");
+        return NextResponse.redirect(url);
+      }
+    }
+    if (targetEmail && role !== "admin") {
+      await (await import("@/lib/admins")).removeAdminEmail(targetEmail);
+    }
     return NextResponse.redirect(new URL("/admin/users", request.url));
   }
 
@@ -177,11 +204,16 @@ export async function POST(request: Request) {
     const adminUser = await requireAdmin();
     if (!adminUser) return NextResponse.json({ error: "Admin only" }, { status: 403 });
     try {
-      await (await import("@/lib/admins")).addAdminEmail(String(fd.get("email") || ""));
+      const invited = await (await import("@/lib/admin-invite")).inviteAdmin(String(fd.get("email") || ""));
+      const url = new URL("/admin/users", request.url);
+      url.searchParams.set("invited", invited.email);
+      if (invited.mailError) url.searchParams.set("mailError", invited.mailError);
+      return NextResponse.redirect(url);
     } catch (err) {
-      return NextResponse.json({ error: err instanceof Error ? err.message : "Could not add admin" }, { status: 400 });
+      const url = new URL("/admin/users", request.url);
+      url.searchParams.set("error", err instanceof Error ? err.message : "Could not add admin");
+      return NextResponse.redirect(url);
     }
-    return NextResponse.redirect(new URL("/admin/users", request.url));
   }
 
   if (action === "gallery-meta") {

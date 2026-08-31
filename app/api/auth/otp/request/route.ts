@@ -26,8 +26,8 @@ async function readPayload(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const ip = clientIp(request);
-  if (!rateLimit(`otp-ip:${ip}`, 8, 10 * 60_000).ok) {
+    const ip = clientIp(request);
+  if (!rateLimit(`otp-ip:${ip}`, 20, 10 * 60_000).ok) {
     return NextResponse.json({ error: "Too many sign-in attempts. Please wait a few minutes." }, { status: 429 });
   }
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
   }
 
   const email = normalizeEmail(parsed.data.email);
-  if (!rateLimit(`otp-email:${email}`, 5, 10 * 60_000).ok) {
+  if (!rateLimit(`otp-email:${email}`, 10, 10 * 60_000).ok) {
     return NextResponse.json({ error: "A code was already sent. Check your inbox, or wait before requesting another." }, { status: 429 });
   }
 

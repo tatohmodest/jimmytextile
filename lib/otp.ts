@@ -52,18 +52,23 @@ export async function ensureAuthUser(
     } else {
       user = data.user;
     }
-  } else if (metadata?.full_name || metadata?.phone) {
+  }
+
+  if (user && (!user.email_confirmed_at || metadata?.full_name || metadata?.phone)) {
     await admin.auth.admin.updateUserById(user.id, {
       email_confirm: true,
       user_metadata: {
         ...user.user_metadata,
-        full_name: metadata.full_name || user.user_metadata?.full_name,
-        phone: metadata.phone || user.user_metadata?.phone,
+        full_name: metadata?.full_name || user.user_metadata?.full_name,
+        phone: metadata?.phone || user.user_metadata?.phone,
       },
     });
   }
 
-  const role = (await isAdminEmail(normalized)) ? "admin" : "customer";
+  const { data: existingProfile } = await admin.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  const listedAdmin = await isAdminEmail(normalized);
+  const currentRole = (existingProfile?.role as "admin" | "staff" | "customer" | undefined) || "customer";
+  const role = listedAdmin ? "admin" : currentRole;
   await admin.from("profiles").upsert({
     id: user.id,
     email: normalized,
@@ -77,13 +82,17 @@ export async function ensureAuthUser(
 
 export async function issueEmailOtp(email: string) {
   const admin = createSupabaseAdminClient();
-  const { data, error } = await admin.auth.admin.generateLink({
-    type: "magiclink",
-    email: normalizeEmail(email),
-  });
-  const otp = data?.properties?.email_otp;
-  if (error || !otp) {
-    throw new Error(error?.message || "Unable to create a sign-in code");
+  const normalized = normalizeEmail(email);
+  let lastError = "Unable to create a sign-in code";
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const { data, error } = await admin.auth.admin.generateLink({
+      type: "magiclink",
+      email: normalized,
+    });
+    const otp = data?.properties?.email_otp;
+    if (otp) return otp;
+    lastError = error?.message || lastError;
+    await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
   }
-  return otp;
+  throw new Error(lastError);
 }
