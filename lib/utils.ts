@@ -35,7 +35,12 @@ export function discountPercent(price: number, discount?: number | null) {
 }
 
 export function siteUrl() {
-  return (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  if (explicit && !explicit.includes("localhost")) return explicit;
+  const vercel =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  if (vercel) return `https://${vercel.replace(/^https?:\/\//, "").replace(/\/$/, "")}`;
+  return (explicit || "http://localhost:3000").replace(/\/$/, "");
 }
 
 export function whatsappLink(phone: string, message?: string) {
