@@ -23,7 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="relative aspect-[3/4] overflow-hidden bg-sand/40">
           <Image
             src={image}
-            alt={product.name}
+            alt={product.product_images?.[0]?.alt_text || product.name}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
             className="object-cover"

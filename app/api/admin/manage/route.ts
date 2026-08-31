@@ -25,6 +25,8 @@ export async function POST(request: Request) {
       name: String(fd.get("name")),
       slug: slugify(String(fd.get("slug") || fd.get("name"))),
       description: String(fd.get("description") || ""),
+      seo_title: String(fd.get("seo_title") || "") || null,
+      seo_description: String(fd.get("seo_description") || "") || null,
       image_url: String(fd.get("image_url") || "") || null,
       position: Number(fd.get("position") || 0),
       is_featured: fd.get("is_featured") === "on",

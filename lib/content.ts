@@ -93,9 +93,9 @@ export const defaultContent: SiteContent = {
     items: [],
   },
   seo: {
-    title: "Jimmy Home Textile — Premium Home Textiles",
+    title: "Jimmy Home Textile | Bedsheets, Curtains & Towels in Cameroon",
     description:
-      "Shop quality bedsheets, bed covers, curtains, blankets, pillowcases and towels from Jimmy Home Textile. Comfort, elegance and beauty for everyday living.",
+      "Shop cotton bedsheets, bed covers, curtains, blankets, pillowcases and towels in Douala and across Cameroon. Quality linge de maison in XAF, packed in the atelier and delivered nationwide.",
     og_image:
       "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1600&q=80",
   },

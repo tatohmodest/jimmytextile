@@ -1,10 +1,29 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { StoreShell } from "@/components/store/StoreShell";
 import { ProductCard } from "@/components/store/ProductCard";
 import { ShopFilters } from "@/components/store/ShopFilters";
+import { DiscoverLinks } from "@/components/store/DiscoverLinks";
 import { getActiveCategories, getShopProducts, getSiteContent } from "@/lib/queries";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const filtered = Boolean(params.q || params.category || params.page);
+  return pageMetadata({
+    title: "Shop home textiles in Cameroon",
+    description:
+      "Browse cotton bedsheets, curtains, towels, bed covers, blankets and pillowcases. Shop online in XAF with delivery from Douala across Cameroon.",
+    path: "/shop",
+    index: !filtered,
+  });
+}
 
 export default async function ShopPage({
   searchParams,
@@ -38,7 +57,9 @@ export default async function ShopPage({
       <div className="mx-auto max-w-7xl px-4 pb-20 pt-32 md:px-8">
         <p className="text-[11px] tracking-[0.32em] uppercase text-mute">The shop</p>
         <h1 className="font-display mt-2 text-5xl md:text-6xl">All products</h1>
-        <p className="mt-3 max-w-xl text-mute">Search, filter and sort the collection. Photography first, details when you need them.</p>
+        <p className="mt-3 max-w-xl text-mute">
+          Bedsheets, curtains, towels and more — packed in Douala and delivered across Cameroon. Search, filter and sort the collection.
+        </p>
         <Suspense>
           <ShopFilters categories={categories} />
         </Suspense>
@@ -72,6 +93,7 @@ export default async function ShopPage({
           </div>
         ) : null}
       </div>
+      <DiscoverLinks />
     </StoreShell>
   );
 }

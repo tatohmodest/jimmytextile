@@ -4,6 +4,8 @@ import { getActiveCategories, getSiteContent } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = { title: "Register", robots: { index: false, follow: false } };
+
 export default async function RegisterPage() {
   const [content, categories] = await Promise.all([getSiteContent(), getActiveCategories()]);
   return (

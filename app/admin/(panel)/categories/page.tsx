@@ -18,6 +18,8 @@ export default async function AdminCategoriesPage() {
             <label className="field">Name<input name="name" defaultValue={c.name} required /></label>
             <label className="field">Slug<input name="slug" defaultValue={c.slug} /></label>
             <label className="field">Description<textarea name="description" defaultValue={c.description || ""} /></label>
+            <label className="field">SEO title<input name="seo_title" defaultValue={c.seo_title || ""} /></label>
+            <label className="field">SEO description<textarea name="seo_description" defaultValue={c.seo_description || ""} /></label>
             <label className="field">Position<input name="position" type="number" defaultValue={c.position} /></label>
             <ImageUploader name="image_url" defaultUrl={c.image_url || ""} folder="categories" />
             <label className="flex gap-2 text-sm"><input type="checkbox" name="is_featured" defaultChecked={c.is_featured} className="w-auto" /> Featured</label>
@@ -31,6 +33,8 @@ export default async function AdminCategoriesPage() {
           <label className="field">Name<input name="name" required /></label>
           <label className="field">Slug<input name="slug" /></label>
           <label className="field">Description<textarea name="description" /></label>
+          <label className="field">SEO title<input name="seo_title" /></label>
+          <label className="field">SEO description<textarea name="seo_description" /></label>
           <label className="field">Position<input name="position" type="number" defaultValue={0} /></label>
           <ImageUploader name="image_url" folder="categories" />
           <label className="flex gap-2 text-sm"><input type="checkbox" name="is_featured" defaultChecked className="w-auto" /> Featured</label>

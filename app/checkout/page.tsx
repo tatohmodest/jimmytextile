@@ -5,7 +5,7 @@ import { getCurrentProfile } from "@/lib/auth";
 import { payunitConfigured } from "@/lib/payunit";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Checkout" };
+export const metadata = { title: "Checkout", robots: { index: false, follow: false } };
 
 export default async function CheckoutPage() {
   const [content, categories, profile] = await Promise.all([

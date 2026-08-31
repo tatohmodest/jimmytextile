@@ -9,10 +9,10 @@ import type { BrandContent, Category } from "@/types";
 const NAV = [
   { href: "/shop", label: "Shop" },
   { href: "/categories", label: "Collections" },
+  { href: "/guides", label: "Guides" },
   { href: "/gallery", label: "Gallery" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
-  { href: "/track", label: "Track order" },
 ];
 
 export function MobileNav({

@@ -3,7 +3,7 @@ import { CartPageClient } from "@/components/store/CartPageClient";
 import { getActiveCategories, getSiteContent } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Cart" };
+export const metadata = { title: "Cart", robots: { index: false, follow: false } };
 
 export default async function CartPage() {
   const [content, categories] = await Promise.all([getSiteContent(), getActiveCategories()]);

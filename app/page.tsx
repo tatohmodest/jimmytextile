@@ -1,18 +1,34 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { StoreShell } from "@/components/store/StoreShell";
 import { ProductCard } from "@/components/store/ProductCard";
 import { VideoCard } from "@/components/store/VideoCard";
+import { DiscoverLinks } from "@/components/store/DiscoverLinks";
 import {
   getActiveCategories,
   getFeaturedCategories,
   getFeaturedProducts,
   getSiteContent,
 } from "@/lib/queries";
+import { pageMetadata } from "@/lib/seo";
 import { Sparkles, Palette, Tag, Truck } from "lucide-react";
 import type { FeatureItem } from "@/types";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getSiteContent();
+  return {
+    ...pageMetadata({
+      title: content.seo.title,
+      description: content.seo.description,
+      path: "/",
+      image: content.seo.og_image,
+    }),
+    title: { absolute: content.seo.title },
+  };
+}
 
 const ICONS: Record<string, typeof Sparkles> = {
   sparkles: Sparkles,
@@ -217,6 +233,7 @@ export default async function HomePage() {
   return (
     <StoreShell brand={content.brand} contact={content.contact} categories={categories} transparentHeader>
       {sections.map((s) => render(s.id))}
+      <DiscoverLinks title="Shop by city, collection and guide" />
       <div className="overflow-hidden border-y border-ink/10 bg-linen py-4">
         <div className="marquee flex w-max gap-16 text-[12px] tracking-[0.35em] uppercase text-mute">
           {Array.from({ length: 2 }).map((_, i) => (

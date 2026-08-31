@@ -32,11 +32,13 @@ export function Footer({
         <div>
           <p className="text-[11px] tracking-[0.24em] uppercase text-ivory/50">House</p>
           <ul className="mt-4 grid gap-2 text-sm text-ivory/80">
+            <li><Link href="/guides">Guides</Link></li>
+            <li><Link href="/delivery">Delivery in Cameroon</Link></li>
+            <li><Link href="/faq">FAQ</Link></li>
             <li><Link href="/gallery">Gallery</Link></li>
             <li><Link href="/about">About us</Link></li>
             <li><Link href="/contact">Contact</Link></li>
             <li><Link href="/track">Track an order</Link></li>
-            <li><Link href="/account">Customer account</Link></li>
             <li><Link href="/shop">All products</Link></li>
           </ul>
         </div>
@@ -47,6 +49,9 @@ export function Footer({
             <li className="flex gap-2"><Phone size={16} className="mt-0.5 shrink-0" /> {contact.phone}</li>
             <li className="flex gap-2"><Mail size={16} className="mt-0.5 shrink-0" /> {contact.email}</li>
             <li>{contact.hours}</li>
+            <li>
+              <Link href="/delivery">Douala · Yaoundé · Buea · Kribi · nationwide</Link>
+            </li>
           </ul>
           <div className="mt-5 flex gap-3">
             <a href={contact.facebook} target="_blank" rel="noreferrer" className="grid h-10 w-10 place-items-center border border-ivory/20">

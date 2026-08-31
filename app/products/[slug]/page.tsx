@@ -1,11 +1,15 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { StoreShell } from "@/components/store/StoreShell";
 import { ProductCard } from "@/components/store/ProductCard";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { ProductBuyBox } from "@/components/store/ProductBuy";
 import { getActiveCategories, getProductBySlug, getRelatedProducts, getSiteContent } from "@/lib/queries";
 import { formatMoney, discountPercent, siteUrl } from "@/lib/utils";
+import { pageMetadata } from "@/lib/seo";
+import { Breadcrumbs } from "@/components/store/Breadcrumbs";
+import { JsonLd } from "@/components/store/JsonLd";
 
 export const dynamic = "force-dynamic";
 
@@ -14,15 +18,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product" };
   const image = product.product_images?.[0]?.image_url;
-  return {
-    title: product.seo_title || product.name,
-    description: product.seo_description || product.description || undefined,
-    openGraph: {
-      title: product.seo_title || product.name,
-      description: product.seo_description || product.description || undefined,
-      images: image ? [{ url: image }] : undefined,
-    },
-  };
+  return pageMetadata({
+    title: product.seo_title || `${product.name} | Buy in Cameroon`,
+    description:
+      product.seo_description ||
+      product.description ||
+      `Buy ${product.name} from Jimmy Home Textile in Douala. Home textiles delivered across Cameroon, priced in XAF.`,
+    path: `/products/${product.slug}`,
+    image,
+  });
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -52,6 +56,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       priceCurrency: "XAF",
       price,
       availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: "Jimmy Home Textile" },
+      areaServed: { "@type": "Country", name: "Cameroon" },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "CM" },
+      },
     },
     ...(product.review_count
       ? {
@@ -74,8 +85,18 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <StoreShell brand={content.brand} contact={content.contact} categories={categories}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-20 pt-32 md:grid-cols-2 md:px-8">
+        <div className="md:col-span-2">
+          <Breadcrumbs
+            items={[
+              { name: "Home", path: "/" },
+              { name: "Shop", path: "/shop" },
+              ...(product.categories ? [{ name: product.categories.name, path: `/categories/${product.categories.slug}` }] : []),
+              { name: product.name, path: `/products/${product.slug}` },
+            ]}
+          />
+        </div>
         <ProductGallery product={product} />
         <div>
           <p className="text-[11px] tracking-[0.28em] uppercase text-mute">
@@ -93,6 +114,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             </p>
           ) : null}
           {product.description ? <p className="mt-6 leading-7 text-mute">{product.description}</p> : null}
+          <p className="mt-4 text-sm text-mute">
+            Packed in Douala and delivered across Cameroon.{" "}
+            <Link href="/delivery" className="underline-offset-4 hover:underline">
+              See delivery cities
+            </Link>
+            .
+          </p>
           <ProductBuyBox product={product} />
           <dl className="mt-12 grid gap-5 border-t border-ink/10 pt-8">
             {details.map(([label, value]) => (

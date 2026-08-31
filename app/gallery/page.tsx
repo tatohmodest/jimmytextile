@@ -1,8 +1,17 @@
 import { StoreShell } from "@/components/store/StoreShell";
 import { VideoCard } from "@/components/store/VideoCard";
 import { getActiveCategories, getSiteContent } from "@/lib/queries";
+import { pageMetadata } from "@/lib/seo";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Atelier films | Jimmy Home Textile gallery",
+  description:
+    "Short films of linens, rooms and making from Jimmy Home Textile in Douala — the house, in motion.",
+  path: "/gallery",
+});
 
 export default async function GalleryPage() {
   const [content, categories] = await Promise.all([getSiteContent(), getActiveCategories()]);

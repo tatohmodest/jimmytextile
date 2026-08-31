@@ -8,7 +8,7 @@ import Link from "next/link";
 import { AccountForms } from "@/components/store/AccountForms";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Account" };
+export const metadata = { title: "Account", robots: { index: false, follow: false } };
 
 export default async function AccountPage() {
   const profile = await getCurrentProfile();

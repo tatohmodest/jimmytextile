@@ -4,7 +4,7 @@ import { TrackForm } from "@/components/store/TrackForm";
 import { getActiveCategories, getSiteContent } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Track order" };
+export const metadata = { title: "Track order", robots: { index: false, follow: false } };
 
 export default async function TrackPage() {
   const [content, categories] = await Promise.all([getSiteContent(), getActiveCategories()]);

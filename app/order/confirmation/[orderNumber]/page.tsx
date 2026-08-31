@@ -7,6 +7,8 @@ import { applyPayunitStatus } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = { title: "Order confirmation", robots: { index: false, follow: false } };
+
 export default async function ConfirmationPage({
   params,
   searchParams,
