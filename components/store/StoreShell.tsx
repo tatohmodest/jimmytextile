@@ -1,4 +1,4 @@
-import { Header } from "./Header";
+import { StoreChrome } from "./StoreChrome";
 import { Footer } from "./Footer";
 import { CartDrawer } from "./CartDrawer";
 import { WhatsAppButton } from "./WhatsAppButton";
@@ -20,7 +20,7 @@ export function StoreShell({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header brand={brand} categories={categories} transparent={transparentHeader} />
+      <StoreChrome brand={brand} categories={categories} transparent={transparentHeader} />
       <main className="flex-1">{children}</main>
       <Footer brand={brand} contact={contact} categories={categories} />
       <CartDrawer />

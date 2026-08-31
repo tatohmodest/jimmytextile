@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect } from "react";
 import { X } from "lucide-react";
 import { Logo } from "./Logo";
 import type { BrandContent, Category } from "@/types";
@@ -26,12 +25,6 @@ export function MobileNav({
   brand: BrandContent;
   categories: Category[];
 }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
@@ -46,10 +39,8 @@ export function MobileNav({
     };
   }, [open, onClose]);
 
-  if (!mounted) return null;
-
-  return createPortal(
-    <div className="mobile-nav-root">
+  return (
+    <div className="mobile-nav-root lg:hidden">
       <button
         type="button"
         aria-label="Close menu"
@@ -63,7 +54,7 @@ export function MobileNav({
         aria-modal="true"
         aria-label="Site menu"
         className={`mobile-nav-drawer border-r border-ivory/10 bg-forest text-ivory shadow-[16px_0_48px_rgba(26,22,18,0.35)] ${
-          open ? "is-open" : "pointer-events-none"
+          open ? "is-open" : ""
         }`}
       >
         <div className="flex items-center justify-between gap-4 border-b border-ivory/10 px-5 py-4">
@@ -71,7 +62,7 @@ export function MobileNav({
           <button
             type="button"
             onClick={onClose}
-            className="grid h-10 w-10 place-items-center border border-ivory/20"
+            className="grid h-11 w-11 place-items-center border border-ivory/20"
             aria-label="Close menu"
           >
             <X size={18} />
@@ -130,7 +121,6 @@ export function MobileNav({
           </Link>
         </div>
       </aside>
-    </div>,
-    document.body
+    </div>
   );
 }
