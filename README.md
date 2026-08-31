@@ -44,13 +44,12 @@ Add these environment variables for Production (and Preview):
 
 Then redeploy. A 404 with `x-vercel-error: NOT_FOUND` means Vercel never invoked Next.js — almost always the framework preset or a missing routing manifest from the first README-only import.
 
-### Admin login (after seed)
+### Admin login
 
 - URL: `/admin/login`
-- Email: `admin@jimmyhometextile.com`
-- Password: the `ADMIN_SEED_PASSWORD` you set in `.env.local`
-
-Change this password after first login.
+- Owner: Modest Wilton — `littlething237@gmail.com`
+- Register with that email if you do not have an account yet, then sign in
+- From **Users & Roles**, grant admin to any other email
 
 ### PayUnit
 

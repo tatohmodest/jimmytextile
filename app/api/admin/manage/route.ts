@@ -161,5 +161,16 @@ export async function POST(request: Request) {
     return NextResponse.redirect(new URL("/admin/users", request.url));
   }
 
+  if (action === "grant-admin-email") {
+    const adminUser = await requireAdmin();
+    if (!adminUser) return NextResponse.json({ error: "Admin only" }, { status: 403 });
+    try {
+      await (await import("@/lib/admins")).addAdminEmail(String(fd.get("email") || ""));
+    } catch (err) {
+      return NextResponse.json({ error: err instanceof Error ? err.message : "Could not add admin" }, { status: 400 });
+    }
+    return NextResponse.redirect(new URL("/admin/users", request.url));
+  }
+
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });
 }

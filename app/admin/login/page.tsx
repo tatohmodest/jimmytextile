@@ -31,13 +31,16 @@ export default function AdminLoginPage() {
       >
         <p className="text-[11px] tracking-[0.32em] uppercase text-mute">Jimmy Home Textile</p>
         <h1 className="font-display mt-2 text-4xl">Atelier login</h1>
-        <p className="mt-2 text-sm text-mute">Staff and admin access only.</p>
-        <label className="field mt-8">Email<input name="email" type="email" required /></label>
+        <p className="mt-2 text-sm text-mute">Staff and admin access only. Modest Wilton is the owner admin.</p>
+        <label className="field mt-8">Email<input name="email" type="email" defaultValue="littlething237@gmail.com" required /></label>
         <label className="field mt-4">Password<input name="password" type="password" required /></label>
         {error ? <p className="mt-3 text-sm text-wine">{error}</p> : null}
         <button className="btn-primary mt-6 w-full" disabled={loading}>
           {loading ? "Signing in..." : "Enter dashboard"}
         </button>
+        <p className="mt-4 text-sm text-mute">
+          First time? <a href="/register">Create an account</a> with your email, then sign in here.
+        </p>
       </form>
     </div>
   );

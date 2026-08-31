@@ -565,7 +565,7 @@ async function main() {
     { onConflict: "id" }
   );
 
-  const email = process.env.ADMIN_SEED_EMAIL || "admin@jimmyhometextile.com";
+  const email = process.env.ADMIN_SEED_EMAIL || process.env.OWNER_ADMIN_EMAIL || "littlething237@gmail.com";
   const password = process.env.ADMIN_SEED_PASSWORD || "JhtAdmin2026!Home";
   const { data: existing } = await admin.auth.admin.listUsers();
   const found = existing.users.find((u) => u.email === email);
@@ -575,7 +575,7 @@ async function main() {
       email,
       password,
       email_confirm: true,
-      user_metadata: { full_name: "Jimmy Home Textile" },
+      user_metadata: { full_name: "Modest Wilton" },
     });
     if (error) throw error;
     userId = data.user.id;
@@ -585,7 +585,7 @@ async function main() {
   await admin.from("profiles").upsert({
     id: userId,
     email,
-    full_name: "Store Owner",
+    full_name: "Modest Wilton",
     phone: "+237 6 00 00 00 00",
     role: "admin",
   });
