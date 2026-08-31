@@ -126,8 +126,8 @@ export function mergeContent(raw: Record<string, unknown> | null | undefined): S
     delivery: { ...defaultContent.delivery, ...(source.delivery as object) },
     homepage_sections,
     gallery: {
-      ...defaultContent.gallery,
-      ...galleryRaw,
+      heading: galleryRaw.heading || defaultContent.gallery.heading,
+      intro: galleryRaw.intro || defaultContent.gallery.intro,
       items: Array.isArray(galleryRaw.items) ? galleryRaw.items : [],
     },
     seo: { ...defaultContent.seo, ...(source.seo as object) },

@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 import { requireStaff, requireAdmin } from "@/lib/auth";
+import { defaultContent } from "@/lib/content";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/utils";
+
+function galleryState(value: unknown) {
+  const current = (value as { heading?: string; intro?: string; items?: Array<Record<string, unknown>> } | null) || {};
+  return {
+    heading: current.heading || defaultContent.gallery.heading,
+    intro: current.intro || defaultContent.gallery.intro,
+    items: Array.isArray(current.items) ? current.items : [],
+  };
+}
 
 export async function POST(request: Request) {
   const staff = await requireStaff();
@@ -174,13 +184,13 @@ export async function POST(request: Request) {
 
   if (action === "gallery-meta") {
     const { data } = await admin.from("site_settings").select("value").eq("key", "gallery").maybeSingle();
-    const current = (data?.value as { heading?: string; intro?: string; items?: unknown[] } | null) || {};
+    const current = galleryState(data?.value);
     await admin.from("site_settings").upsert({
       key: "gallery",
       value: {
-        heading: String(fd.get("heading") || "The house, in motion"),
-        intro: String(fd.get("intro") || ""),
-        items: Array.isArray(current.items) ? current.items : [],
+        heading: String(fd.get("heading") || defaultContent.gallery.heading),
+        intro: String(fd.get("intro") || defaultContent.gallery.intro),
+        items: current.items,
       },
       updated_at: new Date().toISOString(),
     });
@@ -189,12 +199,8 @@ export async function POST(request: Request) {
 
   if (action === "gallery-item") {
     const { data } = await admin.from("site_settings").select("value").eq("key", "gallery").maybeSingle();
-    const current = (data?.value as {
-      heading?: string;
-      intro?: string;
-      items?: Array<Record<string, unknown>>;
-    } | null) || { heading: "The house, in motion", intro: "", items: [] };
-    const items = Array.isArray(current.items) ? [...current.items] : [];
+    const current = galleryState(data?.value);
+    const items = [...current.items];
     const item = {
       id: crypto.randomUUID(),
       title: String(fd.get("title") || "Untitled film"),
@@ -211,7 +217,7 @@ export async function POST(request: Request) {
     items.push(item);
     await admin.from("site_settings").upsert({
       key: "gallery",
-      value: { heading: current.heading || "The house, in motion", intro: current.intro || "", items },
+      value: { heading: current.heading, intro: current.intro, items },
       updated_at: new Date().toISOString(),
     });
     return NextResponse.redirect(new URL("/admin/gallery", request.url));
@@ -219,13 +225,9 @@ export async function POST(request: Request) {
 
   if (action === "gallery-toggle" || action === "gallery-delete") {
     const { data } = await admin.from("site_settings").select("value").eq("key", "gallery").maybeSingle();
-    const current = (data?.value as {
-      heading?: string;
-      intro?: string;
-      items?: Array<Record<string, unknown>>;
-    } | null) || { heading: "The house, in motion", intro: "", items: [] };
+    const current = galleryState(data?.value);
     const id = String(fd.get("id") || "");
-    let items = Array.isArray(current.items) ? [...current.items] : [];
+    let items = [...current.items];
     if (action === "gallery-delete") {
       const removed = items.find((item) => String(item.id) === id);
       items = items.filter((item) => String(item.id) !== id);
@@ -241,7 +243,7 @@ export async function POST(request: Request) {
     }
     await admin.from("site_settings").upsert({
       key: "gallery",
-      value: { heading: current.heading || "The house, in motion", intro: current.intro || "", items },
+      value: { heading: current.heading, intro: current.intro, items },
       updated_at: new Date().toISOString(),
     });
     return NextResponse.redirect(new URL("/admin/gallery", request.url));
