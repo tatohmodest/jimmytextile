@@ -92,6 +92,24 @@ body {
   background: var(--color-forest);
 }
 
+.btn-light {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-ivory);
+  color: var(--color-ink);
+  padding: 0.95rem 1.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: background 200ms ease;
+}
+
+.btn-light:hover {
+  background: var(--color-sand);
+}
+
 .btn-ghost {
   display: inline-flex;
   align-items: center;

@@ -51,7 +51,7 @@ export default async function HomePage() {
               <h1 className="font-display mt-4 text-5xl leading-[0.95] md:text-7xl">{content.hero.heading}</h1>
               <p className="mt-6 max-w-md text-base leading-7 text-ivory/80">{content.hero.description}</p>
               <div className="mt-10 flex flex-wrap gap-3">
-                <Link href={content.hero.primary_button_link} className="btn-primary bg-ivory text-ink hover:bg-sand">
+                <Link href={content.hero.primary_button_link} className="btn-light">
                   {content.hero.primary_button_text}
                 </Link>
                 <Link href={content.hero.secondary_button_link} className="btn-ghost">
@@ -131,7 +131,7 @@ export default async function HomePage() {
               <p className="text-[11px] tracking-[0.32em] uppercase text-sand">This season</p>
               <h2 className="font-display mt-3 text-5xl md:text-6xl">{content.promo.heading}</h2>
               <p className="mt-5 text-ivory/80">{content.promo.description}</p>
-              <Link href={content.promo.button_link} className="btn-primary mt-8 bg-ivory text-ink hover:bg-sand">
+              <Link href={content.promo.button_link} className="btn-light mt-8">
                 {content.promo.button_text}
               </Link>
             </div>
