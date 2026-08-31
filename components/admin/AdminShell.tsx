@@ -72,7 +72,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 function Brand() {
   return (
-    <div className="border-b border-white/10 px-5 py-6">
+    <div className="shrink-0 border-b border-white/10 px-5 py-6">
       <p className="font-display text-2xl">Jimmy</p>
       <p className="text-[10px] tracking-[0.28em] uppercase text-ivory/60">Atelier CMS</p>
     </div>
@@ -107,9 +107,9 @@ export function AdminShell({ profile, children }: { profile: Profile; children: 
 
   return (
     <div className="min-h-screen bg-[#f3eee6] text-ink lg:grid lg:grid-cols-[240px_1fr]">
-      <aside className="hidden h-screen flex-col bg-forest text-ivory lg:flex">
+      <aside className="hidden h-dvh sticky top-0 flex-col self-start bg-forest text-ivory lg:flex">
         <Brand />
-        <nav className="grid gap-1 overflow-y-auto p-3 text-sm">
+        <nav className="grid min-h-0 flex-1 gap-1 overflow-y-auto p-3 text-sm">
           <NavLinks />
         </nav>
       </aside>
