@@ -85,7 +85,13 @@ export const defaultContent: SiteContent = {
     { id: "promo", enabled: true, position: 3 },
     { id: "why", enabled: true, position: 4 },
     { id: "about-tease", enabled: true, position: 5 },
+    { id: "gallery", enabled: true, position: 6 },
   ],
+  gallery: {
+    heading: "The house, in motion",
+    intro: "Short films from the atelier — linens, rooms, and the quiet work of making a home feel finished.",
+    items: [],
+  },
   seo: {
     title: "Jimmy Home Textile — Premium Home Textiles",
     description:
@@ -97,6 +103,19 @@ export const defaultContent: SiteContent = {
 
 export function mergeContent(raw: Record<string, unknown> | null | undefined): SiteContent {
   const source = raw || {};
+  const storedSections = Array.isArray(source.homepage_sections)
+    ? (source.homepage_sections as SiteContent["homepage_sections"])
+    : null;
+  const have = new Set((storedSections || []).map((s) => s.id));
+  const homepage_sections = storedSections
+    ? [
+        ...storedSections,
+        ...defaultContent.homepage_sections
+          .filter((section) => !have.has(section.id))
+          .map((section, index) => ({ ...section, position: storedSections.length + index })),
+      ]
+    : defaultContent.homepage_sections;
+  const galleryRaw = (source.gallery as SiteContent["gallery"] | undefined) || defaultContent.gallery;
   return {
     brand: { ...defaultContent.brand, ...(source.brand as object) },
     hero: { ...defaultContent.hero, ...(source.hero as object) },
@@ -105,9 +124,12 @@ export function mergeContent(raw: Record<string, unknown> | null | undefined): S
     about: { ...defaultContent.about, ...(source.about as object) },
     contact: { ...defaultContent.contact, ...(source.contact as object) },
     delivery: { ...defaultContent.delivery, ...(source.delivery as object) },
-    homepage_sections: Array.isArray(source.homepage_sections)
-      ? (source.homepage_sections as SiteContent["homepage_sections"])
-      : defaultContent.homepage_sections,
+    homepage_sections,
+    gallery: {
+      ...defaultContent.gallery,
+      ...galleryRaw,
+      items: Array.isArray(galleryRaw.items) ? galleryRaw.items : [],
+    },
     seo: { ...defaultContent.seo, ...(source.seo as object) },
   };
 }

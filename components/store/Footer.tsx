@@ -32,6 +32,7 @@ export function Footer({
         <div>
           <p className="text-[11px] tracking-[0.24em] uppercase text-ivory/50">House</p>
           <ul className="mt-4 grid gap-2 text-sm text-ivory/80">
+            <li><Link href="/gallery">Gallery</Link></li>
             <li><Link href="/about">About us</Link></li>
             <li><Link href="/contact">Contact</Link></li>
             <li><Link href="/track">Track an order</Link></li>

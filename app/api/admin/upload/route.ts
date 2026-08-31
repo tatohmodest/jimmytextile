@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth";
-import { uploadImageBuffer } from "@/lib/cloudinary";
+import { MAX_UPLOAD_BYTES, uploadImageBuffer } from "@/lib/cloudinary";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 
@@ -16,8 +16,14 @@ export async function POST(request: Request) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "Missing file" }, { status: 400 });
   }
-  if (file.size > 8 * 1024 * 1024) {
-    return NextResponse.json({ error: "Image must be under 8MB" }, { status: 400 });
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return NextResponse.json({ error: "File must be under 10MB" }, { status: 400 });
+  }
+  if (file.type.startsWith("video/")) {
+    return NextResponse.json(
+      { error: "Videos upload directly to Cloudinary. Use the gallery or media uploader." },
+      { status: 400 }
+    );
   }
   const buffer = Buffer.from(await file.arrayBuffer());
   const uploaded = await uploadImageBuffer(buffer, `jimmy-home-textile/${folder}`);

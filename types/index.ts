@@ -219,6 +219,23 @@ export type HomepageSection = {
   position: number;
 };
 
+export type GalleryItem = {
+  id: string;
+  title: string;
+  description: string;
+  video_url: string;
+  poster_url: string;
+  public_id: string;
+  published: boolean;
+  position: number;
+};
+
+export type GalleryContent = {
+  heading: string;
+  intro: string;
+  items: GalleryItem[];
+};
+
 export type SiteContent = {
   brand: BrandContent;
   hero: HeroContent;
@@ -235,6 +252,7 @@ export type SiteContent = {
   contact: ContactContent;
   delivery: DeliverySettings;
   homepage_sections: HomepageSection[];
+  gallery: GalleryContent;
   seo: {
     title: string;
     description: string;

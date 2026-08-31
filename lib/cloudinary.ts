@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
+import { IMAGE_EAGER, pickCompressedAsset, VIDEO_EAGER } from "@/lib/media";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,13 +9,31 @@ cloudinary.config({
 });
 
 export { cloudinary };
+export { MAX_UPLOAD_BYTES, cloudinaryUrl, pickCompressedAsset, videoPosterUrl } from "@/lib/media";
 
-export function cloudinaryUrl(source: string, width = 1200, quality = "auto") {
-  if (!source) return source;
-  if (source.includes("res.cloudinary.com") && source.includes("/upload/")) {
-    return source.replace("/upload/", `/upload/f_auto,q_${quality},w_${width},c_limit/`);
-  }
-  return source;
+export function signDirectUpload(input: { folder: string; resourceType: "image" | "video" }) {
+  const timestamp = Math.round(Date.now() / 1000);
+  const folder = input.folder.startsWith("jimmy-home-textile/")
+    ? input.folder
+    : `jimmy-home-textile/${input.folder}`;
+  const eager = input.resourceType === "video" ? VIDEO_EAGER : IMAGE_EAGER;
+  const params: Record<string, string | number> = {
+    timestamp,
+    folder,
+    eager,
+    use_filename: "true",
+    unique_filename: "true",
+  };
+  const signature = cloudinary.utils.api_sign_request(params, process.env.CLOUDINARY_API_SECRET || "");
+  return {
+    timestamp,
+    signature,
+    folder,
+    eager,
+    apiKey: process.env.CLOUDINARY_API_KEY || "",
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
+    resourceType: input.resourceType,
+  };
 }
 
 export async function uploadImageBuffer(
@@ -28,15 +47,10 @@ export async function uploadImageBuffer(
     public_id: filename,
     resource_type: "image",
     overwrite: false,
-    transformation: [{ quality: "auto", fetch_format: "auto" }],
+    eager: [{ width: 2400, crop: "limit", quality: "auto:good" }],
+    eager_async: false,
   });
-  return {
-    url: result.secure_url as string,
-    publicId: result.public_id as string,
-    width: result.width as number,
-    height: result.height as number,
-    bytes: result.bytes as number,
-  };
+  return pickCompressedAsset(result);
 }
 
 export async function uploadImageFromUrl(url: string, folder = "jimmy-home-textile") {
@@ -44,17 +58,16 @@ export async function uploadImageFromUrl(url: string, folder = "jimmy-home-texti
     folder,
     resource_type: "image",
     overwrite: false,
+    eager: [{ width: 2400, crop: "limit", quality: "auto:good" }],
   });
-  return {
-    url: result.secure_url as string,
-    publicId: result.public_id as string,
-    width: result.width as number,
-    height: result.height as number,
-    bytes: result.bytes as number,
-  };
+  return pickCompressedAsset(result);
+}
+
+export async function destroyAsset(publicId: string, resourceType: "image" | "video" = "image") {
+  if (!publicId) return;
+  await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
 }
 
 export async function destroyImage(publicId: string) {
-  if (!publicId) return;
-  await cloudinary.uploader.destroy(publicId);
+  await destroyAsset(publicId, "image");
 }

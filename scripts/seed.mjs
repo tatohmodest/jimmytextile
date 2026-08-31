@@ -181,7 +181,13 @@ async function main() {
     { id: "promo", enabled: true, position: 3 },
     { id: "why", enabled: true, position: 4 },
     { id: "about-tease", enabled: true, position: 5 },
+    { id: "gallery", enabled: true, position: 6 },
   ]);
+  await upsertSettings("gallery", {
+    heading: "The house, in motion",
+    intro: "Short films from the atelier — linens, rooms, and the quiet work of making a home feel finished.",
+    items: [],
+  });
   await upsertSettings("seo", {
     title: "Jimmy Home Textile — Premium Home Textiles",
     description: "Shop quality bedsheets, bed covers, curtains, blankets, pillowcases and towels from Jimmy Home Textile.",

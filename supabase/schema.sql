@@ -246,6 +246,9 @@ create table if not exists public.media_library (
   created_at timestamptz not null default now()
 );
 
+alter table public.media_library add column if not exists resource_type text default 'image';
+alter table public.media_library add column if not exists poster_url text;
+
 create table if not exists public.inquiries (
   id uuid primary key default gen_random_uuid(),
   name text not null,

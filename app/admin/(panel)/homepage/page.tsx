@@ -39,7 +39,7 @@ export default async function HomepageCmsPage() {
           </div>
         ))}
         <h2 className="font-display text-2xl">Section order</h2>
-        <p className="text-xs text-mute">Comma-separated ids. Toggle visibility with the checkboxes.</p>
+        <p className="text-xs text-mute">Comma-separated ids. Toggle visibility with the checkboxes. Include gallery to show atelier films on the homepage.</p>
         <input name="section_order" defaultValue={order.map((s) => s.id).join(",")} />
         {order.map((s) => (
           <label key={s.id} className="flex gap-2 text-sm">

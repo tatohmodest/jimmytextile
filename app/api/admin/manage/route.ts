@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       description: String(fd.get(`feature_description_${i}`) || ""),
       icon: String(fd.get(`feature_icon_${i}`) || "sparkles"),
     }));
-    const sections = String(fd.get("section_order") || "hero,categories,featured,promo,why,about-tease")
+    const sections = String(fd.get("section_order") || "hero,categories,featured,promo,why,about-tease,gallery")
       .split(",")
       .map((id, position) => ({ id: id.trim(), enabled: fd.get(`section_${id.trim()}`) === "on", position }));
     await admin.from("site_settings").upsert([
@@ -170,6 +170,75 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: err instanceof Error ? err.message : "Could not add admin" }, { status: 400 });
     }
     return NextResponse.redirect(new URL("/admin/users", request.url));
+  }
+
+  if (action === "gallery-meta") {
+    const { data } = await admin.from("site_settings").select("value").eq("key", "gallery").maybeSingle();
+    const current = (data?.value as { heading?: string; intro?: string; items?: unknown[] } | null) || {};
+    await admin.from("site_settings").upsert({
+      key: "gallery",
+      value: {
+        heading: String(fd.get("heading") || "The house, in motion"),
+        intro: String(fd.get("intro") || ""),
+        items: Array.isArray(current.items) ? current.items : [],
+      },
+      updated_at: new Date().toISOString(),
+    });
+    return NextResponse.redirect(new URL("/admin/gallery", request.url));
+  }
+
+  if (action === "gallery-item") {
+    const { data } = await admin.from("site_settings").select("value").eq("key", "gallery").maybeSingle();
+    const current = (data?.value as {
+      heading?: string;
+      intro?: string;
+      items?: Array<Record<string, unknown>>;
+    } | null) || { heading: "The house, in motion", intro: "", items: [] };
+    const items = Array.isArray(current.items) ? [...current.items] : [];
+    const item = {
+      id: crypto.randomUUID(),
+      title: String(fd.get("title") || "Untitled film"),
+      description: String(fd.get("description") || ""),
+      video_url: String(fd.get("video_url") || ""),
+      poster_url: String(fd.get("poster_url") || ""),
+      public_id: String(fd.get("public_id") || ""),
+      published: fd.get("published") === "on",
+      position: items.length,
+    };
+    if (!item.video_url) {
+      return NextResponse.json({ error: "Upload a video first" }, { status: 400 });
+    }
+    items.push(item);
+    await admin.from("site_settings").upsert({
+      key: "gallery",
+      value: { heading: current.heading || "The house, in motion", intro: current.intro || "", items },
+      updated_at: new Date().toISOString(),
+    });
+    return NextResponse.redirect(new URL("/admin/gallery", request.url));
+  }
+
+  if (action === "gallery-toggle" || action === "gallery-delete") {
+    const { data } = await admin.from("site_settings").select("value").eq("key", "gallery").maybeSingle();
+    const current = (data?.value as {
+      heading?: string;
+      intro?: string;
+      items?: Array<Record<string, unknown>>;
+    } | null) || { heading: "The house, in motion", intro: "", items: [] };
+    const id = String(fd.get("id") || "");
+    let items = Array.isArray(current.items) ? [...current.items] : [];
+    if (action === "gallery-delete") {
+      items = items.filter((item) => String(item.id) !== id);
+    } else {
+      items = items.map((item) =>
+        String(item.id) === id ? { ...item, published: !item.published } : item
+      );
+    }
+    await admin.from("site_settings").upsert({
+      key: "gallery",
+      value: { heading: current.heading || "The house, in motion", intro: current.intro || "", items },
+      updated_at: new Date().toISOString(),
+    });
+    return NextResponse.redirect(new URL("/admin/gallery", request.url));
   }
 
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });

@@ -9,6 +9,7 @@ import type { BrandContent, Category } from "@/types";
 const NAV = [
   { href: "/shop", label: "Shop" },
   { href: "/categories", label: "Collections" },
+  { href: "/gallery", label: "Gallery" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
   { href: "/track", label: "Track order" },

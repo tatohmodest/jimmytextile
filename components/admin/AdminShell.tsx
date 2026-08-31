@@ -13,6 +13,7 @@ import {
   Warehouse,
   Home,
   Megaphone,
+  Film,
   ImageIcon,
   Settings,
   Shield,
@@ -33,6 +34,7 @@ const NAV = [
   { href: "/admin/homepage", label: "Homepage", icon: Home },
   { href: "/admin/promotions", label: "Promotions", icon: Megaphone },
   { href: "/admin/media", label: "Media", icon: ImageIcon },
+  { href: "/admin/gallery", label: "Gallery", icon: Film },
   { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/users", label: "Users & Roles", icon: Shield },
 ];

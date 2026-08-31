@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { StoreShell } from "@/components/store/StoreShell";
 import { ProductCard } from "@/components/store/ProductCard";
+import { VideoCard } from "@/components/store/VideoCard";
 import {
   getActiveCategories,
   getFeaturedCategories,
@@ -172,6 +173,39 @@ export default async function HomePage() {
             <p className="mt-6 max-w-lg text-ivory/75 leading-7">{content.about.body}</p>
             <Link href="/about" className="btn-ghost mt-8 w-fit">
               Our story
+            </Link>
+          </div>
+        </section>
+      );
+    }
+    if (id === "gallery") {
+      const films = [...content.gallery.items]
+        .filter((item) => item.published)
+        .sort((a, b) => a.position - b.position)
+        .slice(0, 3);
+      if (!films.length) return null;
+      return (
+        <section key="gallery" className="bg-forest py-20 text-ivory">
+          <div className="mx-auto max-w-7xl px-4 md:px-8">
+            <div className="mb-10 flex items-end justify-between gap-6">
+              <div>
+                <p className="text-[11px] tracking-[0.32em] uppercase text-sand">Atelier films</p>
+                <h2 className="font-display mt-2 text-4xl md:text-5xl">{content.gallery.heading}</h2>
+                <p className="mt-4 max-w-xl text-ivory/70">{content.gallery.intro}</p>
+              </div>
+              <Link href="/gallery" className="hidden text-xs tracking-[0.22em] uppercase text-ivory/80 md:inline">
+                View gallery
+              </Link>
+            </div>
+            <div className={`grid gap-4 ${films.length === 1 ? "" : "md:grid-cols-2"}`}>
+              {films.map((item, index) => (
+                <div key={item.id} className={index === 0 && films.length > 1 ? "md:col-span-2" : ""}>
+                  <VideoCard item={item} featured={index === 0} />
+                </div>
+              ))}
+            </div>
+            <Link href="/gallery" className="btn-ghost mt-8 inline-flex md:hidden">
+              View gallery
             </Link>
           </div>
         </section>
