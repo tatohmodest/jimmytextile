@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Menu, Search, ShoppingBag, User, X } from "lucide-react";
 import { Logo } from "./Logo";
+import { MobileNav } from "./MobileNav";
 import { useCart } from "./CartProvider";
 import type { BrandContent, Category } from "@/types";
 
@@ -27,12 +28,21 @@ export function Header({
   const { count, setOpen } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [menu, setMenu] = useState(false);
+  const closeMenu = useCallback(() => setMenu(false), []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => {
+      if (window.matchMedia("(min-width: 768px)").matches) setMenu(false);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   const solid = !transparent || scrolled || menu;
@@ -48,7 +58,13 @@ export function Header({
         <p className="py-2">Complimentary care packing · Delivery across Cameroon · Chat with us on WhatsApp</p>
       </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 md:px-8">
-        <button className={`md:hidden ${light ? "text-ivory" : "text-ink"}`} onClick={() => setMenu((v) => !v)} aria-label="Menu">
+        <button
+          className={`md:hidden ${light ? "text-ivory" : "text-ink"}`}
+          onClick={() => setMenu((v) => !v)}
+          aria-label={menu ? "Close menu" : "Open menu"}
+          aria-expanded={menu}
+          aria-controls="mobile-nav"
+        >
           {menu ? <X size={22} /> : <Menu size={22} />}
         </button>
         <Logo brand={brand} light={light} />
@@ -76,24 +92,7 @@ export function Header({
           </button>
         </div>
       </div>
-      {menu ? (
-        <div className="border-t border-ink/10 bg-ivory px-6 py-6 md:hidden">
-          <div className="grid gap-4 text-sm tracking-[0.18em] uppercase">
-            {NAV.map((item) => (
-              <Link key={item.href} href={item.href} onClick={() => setMenu(false)}>
-                {item.label}
-              </Link>
-            ))}
-          </div>
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            {categories.slice(0, 6).map((c) => (
-              <Link key={c.id} href={`/categories/${c.slug}`} onClick={() => setMenu(false)} className="text-sm text-mute">
-                {c.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      ) : null}
+      <MobileNav open={menu} onClose={closeMenu} brand={brand} categories={categories} />
     </header>
   );
 }
