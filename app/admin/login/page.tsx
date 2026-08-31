@@ -9,9 +9,9 @@ export default function AdminLoginPage() {
         <p className="text-[11px] tracking-[0.32em] uppercase text-mute">Jimmy Home Textile</p>
         <h1 className="font-display mt-2 text-4xl">Atelier login</h1>
         <p className="mt-2 text-sm text-mute">
-          Passwordless access. We email a one-time code to the owner admin, Modest Wilton.
+          Passwordless access. Enter your email and we will send a one-time sign-in code.
         </p>
-        <OtpSignIn mode="login" next="/admin" defaultEmail="modestwilton@gmail.com" hideAltLink />
+        <OtpSignIn mode="login" next="/admin" hideAltLink />
       </div>
     </div>
   );
