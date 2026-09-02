@@ -1,7 +1,7 @@
 "use client";
 
-import { ImageUploader } from "./ImageUploader";
 import { useState } from "react";
+import { ProductImagePicker } from "./ProductImagePicker";
 
 type Category = { id: string; name: string };
 type ImageRow = { url: string; alt: string };
@@ -46,25 +46,28 @@ function tiersToText(tiers?: Product["price_tiers"]) {
 
 export function ProductForm({ categories, product }: { categories: Category[]; product?: Product }) {
   const sorted = [...(product?.product_images || [])].sort((a, b) => a.position - b.position);
-  const initialImages: ImageRow[] = sorted.length
-    ? sorted.map((img, i) => ({
-        url: img.image_url,
-        alt: img.alt_text || product?.image_alts?.[i] || "",
-      }))
-    : (product?.image_alts || []).map((alt) => ({ url: "", alt }));
-  const [images, setImages] = useState<ImageRow[]>(initialImages.length ? initialImages : [{ url: "", alt: "" }]);
-
-  function addImage(url = "", alt = "") {
-    setImages((prev) => [...prev, { url, alt: alt || (prev.length ? `Related product photo ${prev.length + 1}` : "Main product photo") }]);
-  }
+  const initialImages: ImageRow[] = sorted.map((img, i) => ({
+    url: img.image_url,
+    alt: img.alt_text || product?.image_alts?.[i] || "",
+  }));
+  const [name, setName] = useState(product?.name || "");
+  const [uploading, setUploading] = useState(false);
 
   return (
     <>
-    <form action="/api/admin/products" method="post" className="mt-8 grid max-w-3xl gap-4">
+    <form
+      action="/api/admin/products"
+      method="post"
+      className="mt-8 grid max-w-3xl gap-4"
+      onSubmit={(event) => {
+        if (uploading) event.preventDefault();
+      }}
+    >
       <input type="hidden" name="action" value={product?.id ? "update" : "create"} />
       {product?.id ? <input type="hidden" name="id" value={product.id} /> : null}
-      <label className="field">Product name (English)<input name="name" defaultValue={product?.name} required /></label>
+      <label className="field">Product name (English)<input name="name" value={name} onChange={(e) => setName(e.target.value)} required /></label>
       <label className="field">Nom du produit (français)<input name="name_fr" defaultValue={product?.name_fr || ""} /></label>
+      <ProductImagePicker productName={name} initial={initialImages} onBusyChange={setUploading} />
       <label className="field">Slug<input name="slug" defaultValue={product?.slug} placeholder="auto from name" /></label>
       <label className="field">Description (English)<textarea name="description" rows={4} defaultValue={product?.description || ""} /></label>
       <label className="field">Description (français)<textarea name="description_fr" rows={4} defaultValue={product?.description_fr || ""} /></label>
@@ -112,54 +115,9 @@ export function ProductForm({ categories, product }: { categories: Category[]; p
       </label>
       <label className="field">SEO title<input name="seo_title" defaultValue={product?.seo_title || ""} /></label>
       <label className="field">SEO description<textarea name="seo_description" defaultValue={product?.seo_description || ""} /></label>
-      <div className="grid gap-3 border border-ink/10 p-4">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-mute">
-          Images · first is the main photo, the rest are related photos. Uploads are compressed, quality kept.
-        </p>
-        <ImageUploader
-          name="unused"
-          folder="products"
-          defaultUrl=""
-          onUploaded={(url) => addImage(url, images[0]?.url ? `${product?.name || "Product"} — related photo` : `${product?.name || "Product"} — main product photo`)}
-        />
-        {images.map((img, index) => (
-          <div key={index} className="grid gap-2 border border-ink/10 p-3 md:grid-cols-[1fr_1fr_auto]">
-            <label className="field">
-              {index === 0 ? "Main image URL" : `Related image ${index} URL`}
-              <input
-                name="image_urls"
-                value={img.url}
-                onChange={(e) =>
-                  setImages((prev) => prev.map((row, i) => (i === index ? { ...row, url: e.target.value } : row)))
-                }
-                placeholder="Cloudinary URL"
-              />
-            </label>
-            <label className="field">
-              Alt text (English)
-              <input
-                name="image_alts"
-                value={img.alt}
-                onChange={(e) =>
-                  setImages((prev) => prev.map((row, i) => (i === index ? { ...row, alt: e.target.value } : row)))
-                }
-                placeholder="Describe the photo in English"
-              />
-            </label>
-            <button
-              type="button"
-              className="self-end text-xs uppercase tracking-[0.16em] text-wine"
-              onClick={() => setImages((prev) => prev.filter((_, i) => i !== index))}
-            >
-              Remove
-            </button>
-          </div>
-        ))}
-        <button type="button" className="btn-outline w-fit" onClick={() => addImage()}>
-          Add another image
-        </button>
-      </div>
-      <button className="btn-primary w-fit">{product?.id ? "Save product" : "Create product"}</button>
+      <button className="btn-primary w-fit" disabled={uploading}>
+        {uploading ? "Wait for photos to finish…" : product?.id ? "Save product" : "Create product"}
+      </button>
     </form>
     {product?.id ? (
       <form action="/api/admin/products" method="post" className="mt-6">

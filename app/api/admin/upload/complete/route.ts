@@ -20,7 +20,7 @@ const schema = z.object({
 export async function POST(request: Request) {
   const staff = await requireStaff();
   if (!staff) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!rateLimit(`upload-complete:${clientIp(request)}`, 30, 60_000).ok) {
+  if (!rateLimit(`upload-complete:${clientIp(request)}`, 80, 60_000).ok) {
     return NextResponse.json({ error: "Upload rate limit reached" }, { status: 429 });
   }
   const parsed = schema.safeParse(await request.json().catch(() => null));
