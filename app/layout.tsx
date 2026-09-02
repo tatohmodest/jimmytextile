@@ -3,11 +3,13 @@ import { Cormorant_Garamond, Outfit } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/store/CartProvider";
 import { ToastProvider } from "@/components/store/ToastProvider";
+import { LocaleProvider } from "@/components/store/LocaleProvider";
 import { JsonLd } from "@/components/store/JsonLd";
 import { getSiteContent } from "@/lib/queries";
 import { organizationSchema, websiteSchema } from "@/lib/seo";
 import { PRIMARY_KEYWORDS } from "@/lib/seo-data";
 import { siteUrl } from "@/lib/utils";
+import { getLocale } from "@/lib/i18n/server";
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],
@@ -48,6 +50,7 @@ export async function generateMetadata(): Promise<Metadata> {
         images: content.seo.og_image ? [{ url: content.seo.og_image, alt: content.brand.name }] : undefined,
         type: "website",
         locale: "en_CM",
+        alternateLocale: ["fr_CM"],
         countryName: "Cameroon",
       },
       twitter: {
@@ -70,6 +73,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
   let schemaContact = null;
   let logo = "";
   try {
@@ -81,7 +85,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   }
 
   return (
-    <html lang="en-CM" className={`${display.variable} ${body.variable} h-full antialiased`}>
+    <html lang={locale === "fr" ? "fr-CM" : "en-CM"} className={`${display.variable} ${body.variable} h-full antialiased`}>
       <body className="min-h-full texture">
         {schemaContact ? (
           <>
@@ -89,9 +93,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <JsonLd data={websiteSchema()} />
           </>
         ) : null}
-        <ToastProvider>
-          <CartProvider>{children}</CartProvider>
-        </ToastProvider>
+        <LocaleProvider locale={locale}>
+          <ToastProvider>
+            <CartProvider>{children}</CartProvider>
+          </ToastProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

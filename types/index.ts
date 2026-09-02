@@ -45,6 +45,14 @@ export type Category = {
   is_active: boolean;
   seo_title: string | null;
   seo_description: string | null;
+  name_fr?: string | null;
+  description_fr?: string | null;
+};
+
+export type PriceTier = {
+  min_qty: number;
+  max_qty: number | null;
+  unit_price: number;
 };
 
 export type ProductColor = { name: string; hex: string };
@@ -82,6 +90,11 @@ export type Product = {
   review_count: number;
   seo_title: string | null;
   seo_description: string | null;
+  name_fr?: string | null;
+  description_fr?: string | null;
+  whats_included_fr?: string | null;
+  price_tiers?: PriceTier[];
+  image_alts?: string[];
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -93,11 +106,15 @@ export type CartItem = {
   productId: string;
   slug: string;
   name: string;
+  name_fr?: string | null;
   image: string;
   price: number;
   quantity: number;
   stock: number;
   sku?: string | null;
+  price_tiers?: PriceTier[];
+  discount_price?: number | null;
+  base_price?: number;
   variant: {
     size?: string;
     color?: string;
@@ -167,30 +184,41 @@ export type Promotion = {
 export type HeroContent = {
   image_url: string;
   heading: string;
+  heading_fr?: string;
   description: string;
+  description_fr?: string;
   primary_button_text: string;
+  primary_button_text_fr?: string;
   primary_button_link: string;
   secondary_button_text: string;
+  secondary_button_text_fr?: string;
   secondary_button_link: string;
 };
 
 export type FeatureItem = {
   title: string;
+  title_fr?: string;
   description: string;
+  description_fr?: string;
   icon: string;
 };
 
 export type AboutContent = {
   heading: string;
+  heading_fr?: string;
   body: string;
+  body_fr?: string;
   story: string;
+  story_fr?: string;
   mission: string;
+  mission_fr?: string;
   image_url: string;
   extra_images: string[];
 };
 
 export type ContactContent = {
   phone: string;
+  phone_secondary?: string;
   email: string;
   address: string;
   city: string;
@@ -199,11 +227,13 @@ export type ContactContent = {
   facebook: string;
   instagram: string;
   hours: string;
+  hours_fr?: string;
 };
 
 export type BrandContent = {
   name: string;
   tagline: string;
+  tagline_fr?: string;
   logo_url: string;
 };
 
@@ -211,6 +241,7 @@ export type DeliverySettings = {
   fee: number;
   free_over: number;
   info: string;
+  info_fr?: string;
 };
 
 export type HomepageSection = {
@@ -232,7 +263,9 @@ export type GalleryItem = {
 
 export type GalleryContent = {
   heading: string;
+  heading_fr?: string;
   intro: string;
+  intro_fr?: string;
   items: GalleryItem[];
 };
 
@@ -242,8 +275,11 @@ export type SiteContent = {
   promo: {
     image_url: string;
     heading: string;
+    heading_fr?: string;
     description: string;
+    description_fr?: string;
     button_text: string;
+    button_text_fr?: string;
     button_link: string;
     enabled: boolean;
   };

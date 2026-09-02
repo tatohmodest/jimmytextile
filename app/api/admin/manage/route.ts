@@ -127,6 +127,7 @@ export async function POST(request: Request) {
     };
     const contact = {
       phone: String(fd.get("phone") || ""),
+      phone_secondary: String(fd.get("phone_secondary") || ""),
       email: String(fd.get("email") || ""),
       address: String(fd.get("address") || ""),
       city: String(fd.get("city") || ""),

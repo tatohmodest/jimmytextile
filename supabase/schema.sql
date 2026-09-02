@@ -82,6 +82,8 @@ create table if not exists public.categories (
   is_active boolean not null default true,
   seo_title text,
   seo_description text,
+  name_fr text,
+  description_fr text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -113,12 +115,25 @@ create table if not exists public.products (
   review_count integer not null default 0,
   seo_title text,
   seo_description text,
+  name_fr text,
+  description_fr text,
+  whats_included_fr text,
+  price_tiers jsonb not null default '[]'::jsonb,
+  image_alts jsonb not null default '[]'::jsonb,
   deleted_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint products_price_positive check (price >= 0),
   constraint products_discount_positive check (discount_price is null or discount_price >= 0)
 );
+
+alter table public.products add column if not exists name_fr text;
+alter table public.products add column if not exists description_fr text;
+alter table public.products add column if not exists whats_included_fr text;
+alter table public.products add column if not exists price_tiers jsonb not null default '[]'::jsonb;
+alter table public.products add column if not exists image_alts jsonb not null default '[]'::jsonb;
+alter table public.categories add column if not exists name_fr text;
+alter table public.categories add column if not exists description_fr text;
 
 create index if not exists products_category_idx on public.products(category_id);
 create index if not exists products_status_idx on public.products(status);

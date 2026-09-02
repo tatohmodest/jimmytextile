@@ -3,6 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { CartItem } from "@/types";
 import { useToast } from "./ToastProvider";
+import { useI18n } from "./LocaleProvider";
+import { unitPriceForQty } from "@/lib/pricing";
 
 type CartContextValue = {
   items: CartItem[];
@@ -27,6 +29,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [open, setOpen] = useState(false);
   const toast = useToast();
+  const { t } = useI18n();
 
   useEffect(() => {
     try {
@@ -48,26 +51,57 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const existing = prev.find((p) => p.productId === item.productId && variantKey(p.variant) === key);
         if (existing) {
           const nextQty = Math.min(existing.stock, existing.quantity + item.quantity);
+          const nextPrice = unitPriceForQty(
+            {
+              price: item.base_price ?? existing.base_price ?? item.price,
+              discount_price: item.discount_price ?? existing.discount_price ?? null,
+              price_tiers: item.price_tiers ?? existing.price_tiers,
+            },
+            nextQty
+          );
           return prev.map((p) =>
-            p.productId === item.productId && variantKey(p.variant) === key ? { ...p, quantity: nextQty } : p
+            p.productId === item.productId && variantKey(p.variant) === key
+              ? { ...p, ...item, quantity: nextQty, price: nextPrice }
+              : p
           );
         }
-        return [...prev, item];
+        return [
+          ...prev,
+          {
+            ...item,
+            price: unitPriceForQty(
+              {
+                price: item.base_price ?? item.price,
+                discount_price: item.discount_price ?? null,
+                price_tiers: item.price_tiers,
+              },
+              item.quantity
+            ),
+          },
+        ];
       });
       setOpen(true);
-      toast.show("Added to your selection");
+      toast.show(t("cart.added"));
     },
-    [toast]
+    [toast, t]
   );
 
   const updateQty = useCallback((productId: string, key: string, quantity: number) => {
     setItems((prev) =>
       prev
-        .map((p) =>
-          p.productId === productId && variantKey(p.variant) === key
-            ? { ...p, quantity: Math.max(1, Math.min(p.stock, quantity)) }
-            : p
-        )
+        .map((p) => {
+          if (!(p.productId === productId && variantKey(p.variant) === key)) return p;
+          const nextQty = Math.max(1, Math.min(p.stock, quantity));
+          const nextPrice = unitPriceForQty(
+            {
+              price: p.base_price ?? p.price,
+              discount_price: p.discount_price ?? null,
+              price_tiers: p.price_tiers,
+            },
+            nextQty
+          );
+          return { ...p, quantity: nextQty, price: nextPrice };
+        })
         .filter((p) => p.quantity > 0)
     );
   }, []);

@@ -7,27 +7,30 @@ export async function getSiteContent(): Promise<SiteContent> {
   try {
     const supabase = await createSupabaseServerClient();
     const { data } = await supabase.from("site_settings").select("key, value");
-    const map: Record<string, unknown> = {};
-    for (const row of data || []) {
-      map[row.key] = row.value;
-    }
-    return mergeContent(map);
+  const map: Record<string, unknown> = {};
+  for (const row of data || []) {
+    map[row.key] = row.value;
+  }
+  const content = mergeContent(map);
+  return content;
   } catch {
     return mergeContent({});
   }
 }
 
 export async function getActiveCategories(): Promise<Category[]> {
+  await loadCatalogExtras();
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("categories")
     .select("*")
     .eq("is_active", true)
     .order("position", { ascending: true });
-  return (data || []) as Category[];
+  return withCategoryExtras((data || []) as Category[]);
 }
 
 export async function getFeaturedCategories(): Promise<Category[]> {
+  await loadCatalogExtras();
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("categories")
@@ -35,7 +38,7 @@ export async function getFeaturedCategories(): Promise<Category[]> {
     .eq("is_active", true)
     .eq("is_featured", true)
     .order("position", { ascending: true });
-  return (data || []) as Category[];
+  return withCategoryExtras((data || []) as Category[]);
 }
 
 const productSelect = `
@@ -45,6 +48,7 @@ const productSelect = `
 `;
 
 export async function getPublishedProducts(limit = 24): Promise<Product[]> {
+  await loadCatalogExtras();
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("products")
@@ -57,6 +61,7 @@ export async function getPublishedProducts(limit = 24): Promise<Product[]> {
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
+  await loadCatalogExtras();
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("products")
@@ -70,6 +75,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
+  await loadCatalogExtras();
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("products")
@@ -83,6 +89,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  await loadCatalogExtras();
   if (!ids.length) return [];
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
@@ -95,6 +102,7 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
 }
 
 export async function getRelatedProducts(categoryId: string | null, excludeId: string) {
+  await loadCatalogExtras();
   const supabase = await createSupabaseServerClient();
   let query = supabase
     .from("products")
@@ -119,6 +127,7 @@ export type ShopFilters = {
 };
 
 export async function getShopProducts(filters: ShopFilters) {
+  await loadCatalogExtras();
   const supabase = await createSupabaseServerClient();
   const page = Math.max(1, filters.page || 1);
   const pageSize = 12;
@@ -184,6 +193,7 @@ export async function getActivePromotions(): Promise<Promotion[]> {
 }
 
 export async function getCategoryBySlug(slug: string) {
+  await loadCatalogExtras();
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("categories")
@@ -191,14 +201,56 @@ export async function getCategoryBySlug(slug: string) {
     .eq("slug", slug)
     .eq("is_active", true)
     .maybeSingle();
-  return (data as Category) || null;
+  if (!data) return null;
+  return withCategoryExtras([data as Category])[0];
 }
 
 function sortImages(products: Product[]) {
-  return products.map((p) => ({
-    ...p,
-    product_images: [...(p.product_images || [])].sort((a, b) => a.position - b.position),
-  }));
+  return products.map((p) => {
+    const extra = extrasBySlug[p.slug] || {};
+    return {
+      ...p,
+      name_fr: p.name_fr || extra.name_fr || null,
+      description_fr: p.description_fr || extra.description_fr || null,
+      whats_included_fr: p.whats_included_fr || extra.whats_included_fr || null,
+      price_tiers: Array.isArray(p.price_tiers) && p.price_tiers.length ? p.price_tiers : extra.price_tiers || [],
+      image_alts: Array.isArray(p.image_alts) && p.image_alts.length ? p.image_alts : extra.image_alts || [],
+      product_images: [...(p.product_images || [])].sort((a, b) => a.position - b.position),
+      categories: p.categories ? withCategoryExtras([p.categories])[0] : p.categories,
+    };
+  });
+}
+
+let extrasBySlug: Record<string, { name_fr?: string; description_fr?: string; whats_included_fr?: string; price_tiers?: Product["price_tiers"]; image_alts?: string[] }> = {};
+let categoryExtrasBySlug: Record<string, { name_fr?: string; description_fr?: string }> = {};
+
+async function loadCatalogExtras() {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase.from("site_settings").select("key, value").in("key", ["catalog_extras", "category_extras"]);
+    for (const row of data || []) {
+      if (row.key === "catalog_extras" && row.value && typeof row.value === "object") {
+        extrasBySlug = row.value as typeof extrasBySlug;
+      }
+      if (row.key === "category_extras" && row.value && typeof row.value === "object") {
+        categoryExtrasBySlug = row.value as typeof categoryExtrasBySlug;
+      }
+    }
+  } catch {
+    extrasBySlug = {};
+    categoryExtrasBySlug = {};
+  }
+}
+
+function withCategoryExtras(categories: Category[]) {
+  return categories.map((category) => {
+    const extra = categoryExtrasBySlug[category.slug] || {};
+    return {
+      ...category,
+      name_fr: category.name_fr || extra.name_fr || null,
+      description_fr: category.description_fr || extra.description_fr || null,
+    };
+  });
 }
 
 export async function getOrderByNumber(orderNumber: string, emailOrPhone?: string) {

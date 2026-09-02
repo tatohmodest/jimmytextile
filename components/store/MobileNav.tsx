@@ -4,16 +4,9 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { Logo } from "./Logo";
+import { useI18n } from "./LocaleProvider";
+import { LanguageSwitch } from "./LanguageSwitch";
 import type { BrandContent, Category } from "@/types";
-
-const NAV = [
-  { href: "/shop", label: "Shop" },
-  { href: "/categories", label: "Collections" },
-  { href: "/guides", label: "Guides" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
 
 export function MobileNav({
   open,
@@ -26,6 +19,16 @@ export function MobileNav({
   brand: BrandContent;
   categories: Category[];
 }) {
+  const { t, pick } = useI18n();
+  const NAV = [
+    { href: "/shop", label: t("nav.shop") },
+    { href: "/categories", label: t("nav.collections") },
+    { href: "/guides", label: t("nav.guides") },
+    { href: "/gallery", label: t("nav.gallery") },
+    { href: "/about", label: t("nav.about") },
+    { href: "/contact", label: t("nav.contact") },
+  ];
+
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
@@ -44,7 +47,7 @@ export function MobileNav({
     <div className="mobile-nav-root lg:hidden">
       <button
         type="button"
-        aria-label="Close menu"
+        aria-label={t("nav.close")}
         tabIndex={open ? 0 : -1}
         className={`mobile-nav-backdrop ${open ? "is-open" : ""}`}
         onClick={onClose}
@@ -53,25 +56,28 @@ export function MobileNav({
         id="mobile-nav"
         role="dialog"
         aria-modal="true"
-        aria-label="Site menu"
+        aria-label={t("nav.menu")}
         className={`mobile-nav-drawer border-r border-ivory/10 bg-forest text-ivory shadow-[16px_0_48px_rgba(26,22,18,0.35)] ${
           open ? "is-open" : ""
         }`}
       >
         <div className="flex items-center justify-between gap-4 border-b border-ivory/10 px-5 py-4">
-          <Logo brand={brand} light />
+          <Logo brand={{ ...brand, tagline: pick(brand.tagline, brand.tagline_fr) }} light />
           <button
             type="button"
             onClick={onClose}
             className="grid h-11 w-11 place-items-center border border-ivory/20"
-            aria-label="Close menu"
+            aria-label={t("nav.close")}
           >
             <X size={18} />
           </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto overscroll-contain px-6 py-8">
-          <p className="text-[10px] tracking-[0.32em] uppercase text-ivory/50">Navigate</p>
+          <div className="mb-6">
+            <LanguageSwitch light />
+          </div>
+          <p className="text-[10px] tracking-[0.32em] uppercase text-ivory/50">{t("nav.navigate")}</p>
           <ul className="mt-4 grid gap-1">
             {NAV.map((item, index) => (
               <li
@@ -95,7 +101,7 @@ export function MobileNav({
               className="mobile-nav-link mt-10 border-t border-ivory/10 pt-8"
               style={{ transitionDelay: open ? `${90 + NAV.length * 55}ms` : "0ms" }}
             >
-              <p className="text-[10px] tracking-[0.32em] uppercase text-ivory/50">Collections</p>
+              <p className="text-[10px] tracking-[0.32em] uppercase text-ivory/50">{t("footer.collections")}</p>
               <div className="mt-4 grid grid-cols-1 gap-2">
                 {categories.slice(0, 8).map((category) => (
                   <Link
@@ -104,7 +110,7 @@ export function MobileNav({
                     onClick={onClose}
                     className="text-sm tracking-[0.04em] text-ivory/70 transition hover:text-ivory"
                   >
-                    {category.name}
+                    {pick(category.name, category.name_fr)}
                   </Link>
                 ))}
               </div>
@@ -118,7 +124,7 @@ export function MobileNav({
             onClick={onClose}
             className="text-[11px] tracking-[0.22em] uppercase text-ivory/70"
           >
-            Customer account
+            {t("nav.account")}
           </Link>
         </div>
       </aside>

@@ -7,6 +7,8 @@ import { initializePayunitPayment, payunitConfigured } from "@/lib/payunit";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { siteUrl } from "@/lib/utils";
 import { mergeContent } from "@/lib/content";
+import { unitPriceForQty } from "@/lib/pricing";
+import type { Product } from "@/types";
 
 const itemSchema = z.object({
   productId: z.string().uuid(),
@@ -53,7 +55,7 @@ export async function POST(request: Request) {
   const ids = parsed.data.items.map((i) => i.productId);
   const { data: products } = await admin
     .from("products")
-    .select("id, name, slug, price, discount_price, stock, sku, status, deleted_at, product_images(image_url, position)")
+    .select("id, name, slug, price, discount_price, stock, sku, status, deleted_at, price_tiers, product_images(image_url, position)")
     .in("id", ids);
 
   const byId = new Map((products || []).map((p) => [p.id, p]));
@@ -66,8 +68,14 @@ export async function POST(request: Request) {
     if (Number(product.stock) < item.quantity) {
       return NextResponse.json({ error: `${product.name} does not have enough stock.` }, { status: 400 });
     }
-    const disc = product.discount_price ? Number(product.discount_price) : 0;
-    const unit = disc > 0 && disc < Number(product.price) ? disc : Number(product.price);
+    const unit = unitPriceForQty(
+      {
+        price: Number(product.price),
+        discount_price: product.discount_price ? Number(product.discount_price) : null,
+        price_tiers: (product as { price_tiers?: Product["price_tiers"] }).price_tiers,
+      },
+      item.quantity
+    );
     const images = [...(product.product_images || [])].sort((a, b) => a.position - b.position);
     sanitized.push({
       productId: product.id,

@@ -6,10 +6,12 @@ import { ProductCard } from "@/components/store/ProductCard";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { ProductBuyBox } from "@/components/store/ProductBuy";
 import { getActiveCategories, getProductBySlug, getRelatedProducts, getSiteContent } from "@/lib/queries";
-import { formatMoney, discountPercent, siteUrl } from "@/lib/utils";
+import { formatMoney, siteUrl } from "@/lib/utils";
 import { pageMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/store/Breadcrumbs";
 import { JsonLd } from "@/components/store/JsonLd";
+import { getTranslator } from "@/lib/i18n/server";
+import { startingPrice } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -31,22 +33,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [content, categories, product] = await Promise.all([
+  const [{ t, pick }, content, categories, product] = await Promise.all([
+    getTranslator(),
     getSiteContent(),
     getActiveCategories(),
     getProductBySlug(slug),
   ]);
   if (!product) notFound();
   const related = await getRelatedProducts(product.category_id, product.id);
-  const percent = discountPercent(Number(product.price), product.discount_price ? Number(product.discount_price) : null);
-  const price = percent ? Number(product.discount_price) : Number(product.price);
+  const name = pick(product.name, product.name_fr);
+  const description = pick(product.description, product.description_fr);
+  const categoryName = pick(product.categories?.name, product.categories?.name_fr);
+  const price = startingPrice(product);
   const image = product.product_images?.[0]?.image_url;
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: product.name,
-    description: product.description,
+    name,
+    description,
     sku: product.sku,
     image: product.product_images?.map((i) => i.image_url) || [],
     brand: { "@type": "Brand", name: "Jimmy Home Textile" },
@@ -76,11 +81,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   };
 
   const details = [
-    ["Material", product.material],
-    ["Dimensions", product.dimensions],
-    ["Care instructions", product.care_instructions],
-    ["What's included", product.whats_included],
-    ["Delivery information", product.delivery_information],
+    [t("product.material"), product.material],
+    [t("product.dimensions"), product.dimensions],
+    [t("product.care"), product.care_instructions],
+    [t("product.included"), pick(product.whats_included, product.whats_included_fr)],
+    [t("product.delivery"), product.delivery_information],
   ].filter(([, v]) => Boolean(v));
 
   return (
@@ -90,34 +95,32 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <div className="md:col-span-2">
           <Breadcrumbs
             items={[
-              { name: "Home", path: "/" },
-              { name: "Shop", path: "/shop" },
-              ...(product.categories ? [{ name: product.categories.name, path: `/categories/${product.categories.slug}` }] : []),
-              { name: product.name, path: `/products/${product.slug}` },
+              { name: t("common.home"), path: "/" },
+              { name: t("nav.shop"), path: "/shop" },
+              ...(product.categories ? [{ name: categoryName, path: `/categories/${product.categories.slug}` }] : []),
+              { name, path: `/products/${product.slug}` },
             ]}
           />
         </div>
         <ProductGallery product={product} />
         <div>
           <p className="text-[11px] tracking-[0.28em] uppercase text-mute">
-            {product.categories?.name} {product.sku ? `· ${product.sku}` : ""}
+            {categoryName} {product.sku ? `· ${product.sku}` : ""}
           </p>
-          <h1 className="font-display mt-2 text-4xl md:text-5xl">{product.name}</h1>
+          <h1 className="font-display mt-2 text-4xl md:text-5xl">{name}</h1>
           <div className="mt-4 flex items-baseline gap-3">
             <span className="text-xl">{formatMoney(price)}</span>
-            {percent ? <span className="text-mute line-through">{formatMoney(product.price)}</span> : null}
-            {percent ? <span className="text-wine text-sm">Save {percent}%</span> : null}
           </div>
           {product.review_count > 0 ? (
             <p className="mt-2 text-sm text-mute">
-              {Number(product.average_rating).toFixed(1)} · {product.review_count} reviews
+              {t("product.reviews", { rating: Number(product.average_rating).toFixed(1), n: product.review_count })}
             </p>
           ) : null}
-          {product.description ? <p className="mt-6 leading-7 text-mute">{product.description}</p> : null}
+          {description ? <p className="mt-6 leading-7 text-mute">{description}</p> : null}
           <p className="mt-4 text-sm text-mute">
-            Packed in Douala and delivered across Cameroon.{" "}
+            {t("product.packed")}{" "}
             <Link href="/delivery" className="underline-offset-4 hover:underline">
-              See delivery cities
+              {t("product.deliveryCities")}
             </Link>
             .
           </p>
@@ -134,7 +137,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </div>
       {related.length ? (
         <section className="mx-auto max-w-7xl px-4 pb-20 md:px-8">
-          <h2 className="font-display text-3xl">You may also like</h2>
+          <h2 className="font-display text-3xl">{t("product.related")}</h2>
           <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />

@@ -159,15 +159,17 @@ async function main() {
     extra_images: [IMAGES.bed4, IMAGES.bed5],
   });
   await upsertSettings("contact", {
-    phone: "+237 6 00 00 00 00",
+    phone: "+237 6 81 52 39 15",
+    phone_secondary: "+237 6 88 95 00 42",
     email: "hello@jimmyhometextile.com",
-    address: "Douala, Cameroon",
+    address: "Paris Dancing Akwa",
     city: "Douala",
     region: "Littoral",
-    whatsapp: "237600000000",
+    whatsapp: "237681523915",
     facebook: "https://web.facebook.com/jimmyhometextile1/",
     instagram: "",
     hours: "Monday — Saturday, 8:00am – 6:00pm",
+    hours_fr: "Lundi — Samedi, 8h – 18h",
   });
   await upsertSettings("delivery", {
     fee: 2000,

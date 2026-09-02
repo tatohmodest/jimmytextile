@@ -22,6 +22,7 @@ export default async function SettingsPage() {
         <ImageUploader name="logo_url" defaultUrl={content.brand.logo_url} folder="brand" />
         <h2 className="font-display mt-6 text-2xl">Contact</h2>
         <label className="field">Phone<input name="phone" defaultValue={content.contact.phone} /></label>
+        <label className="field">Second phone<input name="phone_secondary" defaultValue={content.contact.phone_secondary || ""} /></label>
         <label className="field">Email<input name="email" defaultValue={content.contact.email} /></label>
         <label className="field">Address<input name="address" defaultValue={content.contact.address} /></label>
         <label className="field">City<input name="city" defaultValue={content.contact.city} /></label>

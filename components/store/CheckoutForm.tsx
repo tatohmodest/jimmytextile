@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useCart } from "@/components/store/CartProvider";
 import { formatMoney } from "@/lib/utils";
 import type { Profile } from "@/types";
+import { useI18n } from "@/components/store/LocaleProvider";
 
 export function CheckoutForm({
   deliveryFee,
@@ -17,13 +18,14 @@ export function CheckoutForm({
   payunitReady: boolean;
 }) {
   const { items, subtotal, clear } = useCart();
+  const { t, pick } = useI18n();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fee = subtotal >= freeOver && freeOver > 0 ? 0 : deliveryFee;
   const total = subtotal + fee;
 
   if (!items.length) {
-    return <p className="text-mute">Your cart is empty. Add linens before checking out.</p>;
+    return <p className="text-mute">{t("cart.emptyCheckout")}</p>;
   }
 
   return (
@@ -63,16 +65,16 @@ export function CheckoutForm({
       }}
     >
       <div className="grid gap-4">
-        <h2 className="font-display text-3xl">Delivery details</h2>
-        <label className="field">Full name<input name="customerName" required defaultValue={profile?.full_name || ""} /></label>
-        <label className="field">Phone number<input name="customerPhone" required defaultValue={profile?.phone || ""} /></label>
-        <label className="field">Email<input name="customerEmail" type="email" required defaultValue={profile?.email || ""} /></label>
-        <label className="field">Delivery address<textarea name="deliveryAddress" rows={3} required /></label>
+        <h2 className="font-display text-3xl">{t("checkout.delivery")}</h2>
+        <label className="field">{t("checkout.name")}<input name="customerName" required defaultValue={profile?.full_name || ""} /></label>
+        <label className="field">{t("checkout.phone")}<input name="customerPhone" required defaultValue={profile?.phone || ""} /></label>
+        <label className="field">{t("checkout.email")}<input name="customerEmail" type="email" required defaultValue={profile?.email || ""} /></label>
+        <label className="field">{t("checkout.address")}<textarea name="deliveryAddress" rows={3} required /></label>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="field">City<input name="city" required defaultValue="Douala" /></label>
-          <label className="field">Region<input name="region" required defaultValue="Littoral" /></label>
+          <label className="field">{t("checkout.city")}<input name="city" required defaultValue="Douala" /></label>
+          <label className="field">{t("checkout.region")}<input name="region" required defaultValue="Littoral" /></label>
         </div>
-        <label className="field">Additional delivery instructions<textarea name="deliveryInstructions" rows={3} /></label>
+        <label className="field">{t("checkout.notes")}<textarea name="deliveryInstructions" rows={3} /></label>
         {!payunitReady ? (
           <p className="text-sm text-wine">
             PayUnit credentials are not configured yet. You can still place the order; payment will stay pending until the gateway is connected.
@@ -86,7 +88,7 @@ export function CheckoutForm({
           {items.map((item) => (
             <li key={item.productId + JSON.stringify(item.variant)} className="flex justify-between gap-3">
               <span>
-                {item.name} × {item.quantity}
+                {pick(item.name, item.name_fr)} × {item.quantity}
                 <span className="block text-xs text-mute">
                   {[item.variant.color, item.variant.size, item.variant.design].filter(Boolean).join(" · ")}
                 </span>
@@ -96,8 +98,8 @@ export function CheckoutForm({
           ))}
         </ul>
         <dl className="mt-5 grid gap-2 border-t border-ink/10 pt-4 text-sm">
-          <div className="flex justify-between"><dt>Subtotal</dt><dd>{formatMoney(subtotal)}</dd></div>
-          <div className="flex justify-between"><dt>Delivery</dt><dd>{formatMoney(fee)}</dd></div>
+          <div className="flex justify-between"><dt>{t("cart.subtotal")}</dt><dd>{formatMoney(subtotal)}</dd></div>
+          <div className="flex justify-between"><dt>{t("product.delivery")}</dt><dd>{formatMoney(fee)}</dd></div>
           <div className="flex justify-between text-base"><dt>Total</dt><dd>{formatMoney(total)}</dd></div>
         </dl>
         <button className="btn-primary mt-6 w-full" disabled={loading}>

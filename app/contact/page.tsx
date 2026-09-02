@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = pageMetadata({
   title: "Contact the Douala house",
   description:
-    "Visit and talk — Douala, Cameroon. WhatsApp, phone and email for bedsheets, curtains, towels, wholesale and delivery questions.",
+    "Visit Jimmy Home Textile at Paris Dancing Akwa, Douala. Call 681523915 or 688950042 for bedsheets, curtains, mattress covers and delivery across Cameroon.",
   path: "/contact",
 });
 
@@ -26,11 +26,12 @@ export default async function ContactPage() {
           <p className="text-[11px] tracking-[0.32em] uppercase text-mute">Visit & talk</p>
           <h1 className="font-display mt-2 text-5xl">Contact</h1>
           <p className="mt-4 max-w-md text-mute">
-            Questions about sizes, fabrics, wholesale bedsheets or delivery to Yaoundé, Buea, Kribi and the rest of Cameroon? Write to the house in Douala — we reply with care.
+            Questions about sizes, fabrics, wholesale bedsheets or delivery across Cameroon? Visit the house at Paris Dancing Akwa, Douala — we reply with care.
           </p>
           <ul className="mt-10 grid gap-4 text-sm">
             <li className="flex gap-3"><MapPin size={18} /> {c.address}, {c.city}</li>
             <li className="flex gap-3"><Phone size={18} /> {c.phone}</li>
+            {c.phone_secondary ? <li className="flex gap-3"><Phone size={18} /> {c.phone_secondary}</li> : null}
             <li className="flex gap-3"><Mail size={18} /> {c.email}</li>
             <li>{c.hours}</li>
           </ul>

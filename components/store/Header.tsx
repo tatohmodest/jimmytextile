@@ -5,16 +5,9 @@ import { useEffect, useState } from "react";
 import { Menu, Search, ShoppingBag, User, X } from "lucide-react";
 import { Logo } from "./Logo";
 import { useCart } from "./CartProvider";
+import { LanguageSwitch } from "./LanguageSwitch";
+import { useI18n } from "./LocaleProvider";
 import type { BrandContent } from "@/types";
-
-const NAV = [
-  { href: "/shop", label: "Shop" },
-  { href: "/categories", label: "Collections" },
-  { href: "/guides", label: "Guides" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
 
 export function Header({
   brand,
@@ -30,7 +23,16 @@ export function Header({
   onCloseMenu: () => void;
 }) {
   const { count, setOpen } = useCart();
+  const { t, pick } = useI18n();
   const [scrolled, setScrolled] = useState(false);
+  const NAV = [
+    { href: "/shop", label: t("nav.shop") },
+    { href: "/categories", label: t("nav.collections") },
+    { href: "/guides", label: t("nav.guides") },
+    { href: "/gallery", label: t("nav.gallery") },
+    { href: "/about", label: t("nav.about") },
+    { href: "/contact", label: t("nav.contact") },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -57,20 +59,20 @@ export function Header({
       }`}
     >
       <div className={`hidden border-b text-center text-[11px] tracking-[0.22em] uppercase lg:block ${light ? "border-white/15 text-ivory/80" : "border-ink/10 text-mute"}`}>
-        <p className="py-2">Complimentary care packing · Delivery across Cameroon · Chat with us on WhatsApp</p>
+        <p className="py-2">{t("header.banner")}</p>
       </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 lg:px-8">
         <button
           type="button"
           className={`inline-flex h-11 min-w-11 items-center justify-center lg:hidden ${light ? "text-ivory" : "text-ink"}`}
           onClick={onToggleMenu}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-label={menuOpen ? t("nav.close") : t("nav.menu")}
           aria-expanded={menuOpen}
           aria-controls="mobile-nav"
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
-        <Logo brand={brand} light={light} />
+        <Logo brand={{ ...brand, tagline: pick(brand.tagline, brand.tagline_fr) }} light={light} />
         <nav className={`desktop-nav hidden items-center gap-8 text-[12px] tracking-[0.22em] uppercase lg:flex ${light ? "text-ivory" : "text-ink"}`}>
           {NAV.map((item) => (
             <Link key={item.href} href={item.href} className="opacity-80 transition hover:opacity-100">
@@ -79,13 +81,14 @@ export function Header({
           ))}
         </nav>
         <div className={`flex items-center gap-4 ${light ? "text-ivory" : "text-ink"}`}>
-          <Link href="/shop" aria-label="Search" className="hidden sm:block">
+          <LanguageSwitch light={light} />
+          <Link href="/shop" aria-label={t("nav.search")} className="hidden sm:block">
             <Search size={18} />
           </Link>
-          <Link href="/account" aria-label="Account">
+          <Link href="/account" aria-label={t("nav.account")}>
             <User size={18} />
           </Link>
-          <button type="button" onClick={() => setOpen(true)} className="relative" aria-label="Cart">
+          <button type="button" onClick={() => setOpen(true)} className="relative" aria-label={t("nav.cart")}>
             <ShoppingBag size={18} />
             {count > 0 ? (
               <span className="absolute -right-2 -top-2 grid h-4 min-w-4 place-items-center bg-bronze px-1 text-[10px] text-ivory">
