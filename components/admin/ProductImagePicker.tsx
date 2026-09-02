@@ -102,8 +102,8 @@ export function ProductImagePicker({
 
   return (
     <div className="grid gap-4 border border-ink/10 p-4">
-      {photos.map((photo, index) => (
-        <span key={`${photo.url}-${index}`}>
+      {photos.map((photo) => (
+        <span key={photo.url}>
           <input type="hidden" name="image_urls" value={photo.url} />
           <input type="hidden" name="image_alts" value={photo.alt} />
         </span>
@@ -157,10 +157,10 @@ export function ProductImagePicker({
       {photos.length ? (
         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
           {photos.map((photo, index) => (
-            <figure key={`${photo.url}-${index}`} className="border border-ink/10 bg-ivory">
+            <figure key={photo.url} className="border border-ink/10 bg-ivory">
               <div className="relative aspect-[4/5] bg-sand">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.url} alt={photo.alt} className="h-full w-full object-cover" />
+                <img src={photo.url} alt={photo.alt} className="h-full w-full object-cover" loading="eager" />
                 <span className="absolute left-2 top-2 bg-ink px-2 py-1 text-[10px] tracking-[0.16em] text-ivory uppercase">
                   {index === 0 ? "Main photo" : `Photo ${index + 1}`}
                 </span>
