@@ -61,3 +61,14 @@ export const CATALOG_PHOTOS = {
     photo("1533633310920-cc9bf1e7f9b0"),
   ],
 };
+
+/** Featured category cards. Prefer a product photo already on the shop; otherwise upload the Unsplash source. */
+export const CATEGORY_PHOTOS = {
+  bedsheets: { fromProduct: "king-bedsheet-4-pillowcases" },
+  pillowcases: { source: photo("1522771739844-6a9f6d5f14af") },
+  duvets: { fromProduct: "triple-duvet-2-sheets-4-pillowcases" },
+  curtains: { fromProduct: "curtain-3-in-1" },
+  "mosquito-nets": { fromProduct: "large-mosquito-net" },
+  "sofa-covers": { fromProduct: "sofa-cover" },
+  "mattress-protectors": { fromProduct: "triple-mattress-protector" },
+};

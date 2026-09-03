@@ -10,7 +10,8 @@
     "db:setup": "node scripts/setup-db.mjs",
     "db:seed": "node scripts/seed.mjs",
     "db:seed-catalog": "node scripts/seed-catalog.mjs",
-    "db:attach-photos": "node scripts/attach-catalog-photos.mjs"
+    "db:attach-photos": "node scripts/attach-catalog-photos.mjs",
+    "db:attach-category-photos": "node scripts/attach-category-photos.mjs"
   },
   "engines": {
     "node": "22.x"
