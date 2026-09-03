@@ -162,7 +162,6 @@ async function main() {
       ({ data, error } = await admin.from("products").upsert(basic, { onConflict: "slug" }).select("id, slug").single());
     }
     if (error) throw error;
-    await admin.from("product_images").delete().eq("product_id", data.id);
     console.log("seeded", p.slug);
   }
 
